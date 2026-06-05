@@ -8,12 +8,11 @@ export const products = [
 ];
 
 export const brands = [
-  { id: 1, name: 'Dormitório Móveis', specialty: 'Roupeiros e Camas' },
-  { id: 2, name: 'Cozinhas e Cia', specialty: 'Modulados práticos' },
-  { id: 3, name: 'SalaDesign', specialty: 'Racks e Painéis' },
-  { id: 4, name: 'Home&Estar', specialty: 'Estofados e Poltronas' },
-  { id: 5, name: 'JantarTudo', specialty: 'Mesas e Cadeiras' },
-  { id: 6, name: 'OfficePró', specialty: 'Móveis para Escritório' }
+  { id: 1, name: 'Moval', specialty: 'A marca do móvel', logo: '/logo-moval.png' },
+  { id: 2, name: 'BM Tubulares', specialty: 'Móveis tubulares', logo: '/logo-bm.png' },
+  { id: 3, name: 'Bertolini', specialty: 'Móveis de Aço', logo: '/logo-bertolini.png' },
+  { id: 4, name: 'Rimo', specialty: 'Seu sonho, sua casa', logo: '/logo-rimo.png' },
+  { id: 5, name: 'Houston', specialty: 'Bicicletas', logo: '/logo-houston.png' }
 ];
 
 export const blogPosts = [

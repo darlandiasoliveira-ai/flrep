@@ -23,7 +23,7 @@ export default function Brands() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 border-t border-l border-slate-100 rounded-lg overflow-hidden">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 border-t border-l border-slate-100 rounded-lg overflow-hidden">
           {brands.map((brand, index) => (
             <motion.div 
               key={brand.id}
@@ -33,7 +33,17 @@ export default function Brands() {
               transition={{ delay: index * 0.1 }}
               className="bg-white border-r border-b border-slate-100 hover:bg-slate-50 transition-colors flex flex-col items-center justify-center p-8 text-center group cursor-pointer aspect-square"
             >
-              <div className="w-16 h-16 bg-slate-100 rounded-full mb-4 group-hover:scale-110 group-hover:bg-royal-50 transition-all duration-300"></div>
+              <div className="w-20 h-20 mb-4 p-2 bg-white rounded-lg shadow-sm border border-slate-100 group-hover:scale-110 transition-all duration-300 flex items-center justify-center">
+                <img 
+                  src={brand.logo} 
+                  alt={`Logo ${brand.name}`} 
+                  className="max-w-full max-h-full object-contain"
+                  onError={(e) => {
+                    // Fallback se a imagem não existir
+                    (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2YxZjVmOSIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5NGExYjIiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIj5Mb2dvPC90ZXh0Pjwvc3ZnPg==';
+                  }}
+                />
+              </div>
               <h4 className="font-bold text-slate-800 leading-tight mb-2 group-hover:text-royal-700 transition-colors">{brand.name}</h4>
               <p className="text-xs text-slate-500 line-clamp-2">{brand.specialty}</p>
             </motion.div>
