@@ -27,11 +27,9 @@ export default function Header() {
       <div className="absolute inset-0 bg-royal-800 opacity-95 md:hidden -z-10"></div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center relative z-20">
-          <div className="flex items-center gap-2">
-            <span className="text-white text-xl font-bold tracking-tight italic">
-              FL <span className="text-slate-300 font-light not-italic ml-1">Representações</span>
-            </span>
-          </div>
+          <Link to="/" className="flex items-center gap-2">
+            <img src="/logo.png" alt="FL Representações" className="h-12 md:h-16 w-40 md:w-56 object-cover object-center bg-white border-2 border-white rounded shadow-md" />
+          </Link>
           
           <nav className="hidden md:flex gap-8">
             {navLinks.map((link) => (

@@ -8,11 +8,9 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           <div>
-            <div className="flex items-center gap-2 mb-6">
-              <span className="text-white text-xl font-bold tracking-tight italic">
-                FL <span className="text-slate-300 font-light not-italic ml-1">Representações</span>
-              </span>
-            </div>
+            <Link to="/" className="flex items-center gap-2 mb-6">
+              <img src="/logo.png" alt="FL Representações" className="h-12 md:h-16 w-36 md:w-48 object-cover object-center bg-white border-2 border-white rounded shadow-md" />
+            </Link>
             <p className="text-slate-400 mb-6 text-sm leading-relaxed">
               Construindo parcerias sólidas e impulsionando negócios através de soluções em representação comercial no setor moveleiro.
             </p>
