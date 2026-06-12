@@ -8,11 +8,46 @@ export const products = [
 ];
 
 export const brands = [
-  { id: 1, name: 'Moval', specialty: 'A marca do móvel', logo: '/logo-moval.png' },
-  { id: 2, name: 'BM Tubulares', specialty: 'Móveis tubulares', logo: '/logo-bm.png' },
-  { id: 3, name: 'Bertolini', specialty: 'Móveis de Aço', logo: '/logo-bertolini.png' },
-  { id: 4, name: 'Rimo', specialty: 'Seu sonho, sua casa', logo: '/logo-rimo.png' },
-  { id: 5, name: 'Houston', specialty: 'Bicicletas', logo: '/logo-houston.png' }
+  { 
+    id: 1, 
+    slug: 'moval',
+    name: 'Moval', 
+    specialty: 'A marca do móvel', 
+    logo: '/logo-moval.png',
+    products: [] 
+  },
+  { 
+    id: 2, 
+    slug: 'bm-tubulares',
+    name: 'BM Tubulares', 
+    specialty: 'Móveis tubulares', 
+    logo: '/logo-bm.png',
+    products: [] 
+  },
+  { 
+    id: 3, 
+    slug: 'bertolini',
+    name: 'Bertolini', 
+    specialty: 'Móveis de Aço', 
+    logo: '/logo-bertolini.png',
+    products: [] 
+  },
+  { 
+    id: 4, 
+    slug: 'rimo',
+    name: 'Rimo', 
+    specialty: 'Seu sonho, sua casa', 
+    logo: '/logo-rimo.png',
+    products: [] 
+  },
+  { 
+    id: 5, 
+    slug: 'houston',
+    name: 'Houston', 
+    specialty: 'Bicicletas', 
+    logo: '/logo-houston.png',
+    products: [] 
+  }
 ];
 
 export const blogPosts = [
