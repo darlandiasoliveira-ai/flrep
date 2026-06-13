@@ -30,6 +30,26 @@ service cloud.firestore {
              data.createdAt is timestamp;
     }
 
+    function isValidContactMessage(data) {
+      // Allow 'company' to be optional but if present, validate it. Or we can just require it to be present (can be empty string)
+      return data.keys().hasAll(['name', 'email', 'phone', 'message', 'createdAt']) &&
+             (data.keys().size() == 5 || (data.keys().size() == 6 && data.keys().hasAll(['company']))) &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.email is string && data.email.size() > 0 && data.email.size() <= 150 &&
+             data.phone is string && data.phone.size() > 0 && data.phone.size() <= 50 &&
+             data.message is string && data.message.size() > 0 && data.message.size() <= 10000 &&
+             (data.keys().hasAll(['company']) ? (data.company is string && data.company.size() <= 200) : true) &&
+             data.createdAt is timestamp;
+    }
+
+    match /messages/{messageId} {
+      allow get, list, delete: if isAdmin();
+      allow create: if isValidId(messageId) &&
+                       isValidContactMessage(incoming()) &&
+                       incoming().createdAt == request.time;
+      allow update: if false;
+    }
+
     match /products/{productId} {
       // Products can be read by anyone (public catalog)
       // We must explicitly validate the query for list if there was any filter, 

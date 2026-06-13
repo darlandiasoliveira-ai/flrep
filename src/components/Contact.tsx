@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
+import { db } from '../lib/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import emailjs from '@emailjs/browser';
 
 const WhatsAppIcon = ({ className }: { className?: string }) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className}>
@@ -9,11 +12,49 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
 
 export default function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [statusMsg, setStatusMsg] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setTimeout(() => setIsSubmitting(false), 1500);
+    setStatusMsg("");
+
+    const formElement = e.currentTarget;
+    const formData = new FormData(formElement);
+    const data = {
+      name: formData.get('name') as string,
+      company: formData.get('company') as string,
+      email: formData.get('email') as string,
+      phone: formData.get('phone') as string,
+      message: formData.get('message') as string,
+      createdAt: serverTimestamp()
+    };
+
+    if (!data.company) {
+      delete (data as any).company;
+    }
+
+    try {
+      if (import.meta.env.VITE_EMAILJS_SERVICE_ID && import.meta.env.VITE_EMAILJS_TEMPLATE_ID && import.meta.env.VITE_EMAILJS_PUBLIC_KEY) {
+        await emailjs.sendForm(
+          import.meta.env.VITE_EMAILJS_SERVICE_ID,
+          import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+          formElement,
+          import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+        );
+      } else {
+        console.warn('EmailJS não está configurado. Cadastre as chaves no arquivo .env para receber emails.');
+      }
+
+      await addDoc(collection(db, 'messages'), data);
+      setStatusMsg("Mensagem enviada com sucesso! Em breve entraremos em contato.");
+      formElement.reset();
+    } catch (error) {
+      console.error(error);
+      setStatusMsg("Ocorreu um erro ao enviar a mensagem. Tente novamente ou use o WhatsApp.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -83,38 +124,45 @@ export default function Contact() {
 
           <div className="bg-white p-8 md:p-10 rounded-[2rem] border border-slate-100 shadow-2xl relative">
             <h4 className="text-2xl font-bold text-slate-900 mb-8">Envie uma mensagem direta</h4>
+            
+            {statusMsg && (
+              <div className={`mb-6 p-4 rounded-xl text-sm font-medium ${statusMsg.includes('sucesso') ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`}>
+                {statusMsg}
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-2 gap-6">
                 <div className="col-span-2 sm:col-span-1">
                   <label htmlFor="name" className="block text-sm font-semibold text-slate-700 mb-2">Nome Completo</label>
-                  <input type="text" id="name" className="w-full px-4 py-3.5 bg-slate-50 rounded-xl border border-transparent focus:bg-white focus:ring-2 focus:ring-royal-500/20 focus:border-royal-500 outline-none transition-all text-slate-900 placeholder:text-slate-400" placeholder="Seu nome" required />
+                  <input type="text" id="name" name="name" className="w-full px-4 py-3.5 bg-slate-50 rounded-xl border border-transparent focus:bg-white focus:ring-2 focus:ring-royal-500/20 focus:border-royal-500 outline-none transition-all text-slate-900 placeholder:text-slate-400" placeholder="Seu nome" required />
                 </div>
                 <div className="col-span-2 sm:col-span-1">
                   <label htmlFor="company" className="block text-sm font-semibold text-slate-700 mb-2">Sua Empresa</label>
-                  <input type="text" id="company" className="w-full px-4 py-3.5 bg-slate-50 rounded-xl border border-transparent focus:bg-white focus:ring-2 focus:ring-royal-500/20 focus:border-royal-500 outline-none transition-all text-slate-900 placeholder:text-slate-400" placeholder="Nome da empresa" />
+                  <input type="text" id="company" name="company" className="w-full px-4 py-3.5 bg-slate-50 rounded-xl border border-transparent focus:bg-white focus:ring-2 focus:ring-royal-500/20 focus:border-royal-500 outline-none transition-all text-slate-900 placeholder:text-slate-400" placeholder="Nome da empresa" />
                 </div>
               </div>
               
               <div>
                 <label htmlFor="email" className="block text-sm font-semibold text-slate-700 mb-2">E-mail Profissional</label>
-                <input type="email" id="email" className="w-full px-4 py-3.5 bg-slate-50 rounded-xl border border-transparent focus:bg-white focus:ring-2 focus:ring-royal-500/20 focus:border-royal-500 outline-none transition-all text-slate-900 placeholder:text-slate-400" placeholder="voce@empresa.com.br" required />
+                <input type="email" id="email" name="email" className="w-full px-4 py-3.5 bg-slate-50 rounded-xl border border-transparent focus:bg-white focus:ring-2 focus:ring-royal-500/20 focus:border-royal-500 outline-none transition-all text-slate-900 placeholder:text-slate-400" placeholder="voce@empresa.com.br" required />
               </div>
 
               <div>
                 <label htmlFor="phone" className="block text-sm font-semibold text-slate-700 mb-2">Telefone Comercial</label>
-                <input type="tel" id="phone" className="w-full px-4 py-3.5 bg-slate-50 rounded-xl border border-transparent focus:bg-white focus:ring-2 focus:ring-royal-500/20 focus:border-royal-500 outline-none transition-all text-slate-900 placeholder:text-slate-400" placeholder="(xx) xxxx-xxxx" required />
+                <input type="tel" id="phone" name="phone" className="w-full px-4 py-3.5 bg-slate-50 rounded-xl border border-transparent focus:bg-white focus:ring-2 focus:ring-royal-500/20 focus:border-royal-500 outline-none transition-all text-slate-900 placeholder:text-slate-400" placeholder="(xx) xxxx-xxxx" required />
               </div>
 
               <div>
                 <label htmlFor="message" className="block text-sm font-semibold text-slate-700 mb-2">Mensagem ou Solicitação</label>
-                <textarea id="message" rows={4} className="w-full px-4 py-3.5 bg-slate-50 rounded-xl border border-transparent focus:bg-white focus:ring-2 focus:ring-royal-500/20 focus:border-royal-500 outline-none transition-all resize-none text-slate-900 placeholder:text-slate-400" placeholder="Nos conte qual produto tem interesse..." required></textarea>
+                <textarea id="message" name="message" rows={4} className="w-full px-4 py-3.5 bg-slate-50 rounded-xl border border-transparent focus:bg-white focus:ring-2 focus:ring-royal-500/20 focus:border-royal-500 outline-none transition-all resize-none text-slate-900 placeholder:text-slate-400" placeholder="Nos conte qual produto tem interesse..." required></textarea>
               </div>
 
               <button type="submit" disabled={isSubmitting} className="w-full bg-royal-700 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-royal-800 transition-all shadow-lg hover:shadow-royal-700/30 disabled:opacity-70 hover:-translate-y-0.5 mt-4">
                 {isSubmitting ? (
                   <span className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
                 ) : (
-                  <>Enviar Cotação <Send className="w-5 h-5" /></>
+                  <>Enviar Mensagem <Send className="w-5 h-5" /></>
                 )}
               </button>
             </form>

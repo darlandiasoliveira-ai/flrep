@@ -11,12 +11,30 @@
         "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp of creation" }
       },
       "required": ["title", "imageUrl", "brandSlug", "createdAt"]
+    },
+    "ContactMessage": {
+      "title": "Contact Message",
+      "description": "A message sent by a user from the contact form",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "The sender's full name" },
+        "company": { "type": "string", "description": "The sender's company name" },
+        "email": { "type": "string", "description": "The sender's email address" },
+        "phone": { "type": "string", "description": "The sender's phone number" },
+        "message": { "type": "string", "description": "The content of the message" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp of creation" }
+      },
+      "required": ["name", "email", "phone", "message", "createdAt"]
     }
   },
   "firestore": {
     "/products/{productId}": {
       "schema": { "$ref": "#/entities/Product" },
       "description": "Products for the brands"
+    },
+    "/messages/{messageId}": {
+      "schema": { "$ref": "#/entities/ContactMessage" },
+      "description": "Messages sent through the contact form"
     }
   }
 }
