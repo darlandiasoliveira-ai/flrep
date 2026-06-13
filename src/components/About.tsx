@@ -59,8 +59,8 @@ export default function About() {
                 <p className="text-sm text-royal-700 leading-relaxed">Nossa equipe é especializada e atende comercialmente lojas parceiras nos estados de <strong>Sergipe</strong> e <strong>Alagoas</strong>, garantindo visitas frequentes e total entendimento do mercado local.</p>
               </div>
               <div className="flex gap-4 shrink-0 justify-center">
-                 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Bandeira_de_Sergipe.svg/320px-Bandeira_de_Sergipe.svg.png" alt="Bandeira de Sergipe" className="w-[4.5rem] h-12 object-cover rounded shadow ring-1 ring-black/5 hover:scale-105 transition-transform" />
-                 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Bandeira_de_Alagoas.svg/320px-Bandeira_de_Alagoas.svg.png" alt="Bandeira de Alagoas" className="w-[4.5rem] h-12 object-cover rounded shadow ring-1 ring-black/5 hover:scale-105 transition-transform" />
+                 <img src="https://upload.wikimedia.org/wikipedia/commons/b/be/Bandeira_de_Sergipe.svg" alt="Bandeira de Sergipe" className="w-[4.5rem] h-12 object-cover rounded shadow ring-1 ring-black/5 hover:scale-105 transition-transform" />
+                 <img src="https://upload.wikimedia.org/wikipedia/commons/8/88/Bandeira_de_Alagoas.svg" alt="Bandeira de Alagoas" className="w-[4.5rem] h-12 object-cover rounded shadow ring-1 ring-black/5 hover:scale-105 transition-transform" />
               </div>
             </div>
 
