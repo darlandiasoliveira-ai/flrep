@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, TrendingUp, Users } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import * as motion from 'motion/react-client';
 import { Link } from 'react-router-dom';
 
@@ -37,20 +37,25 @@ export default function Hero() {
             </div>
           </motion.div>
           
-          <div className="hidden lg:grid grid-cols-2 gap-6 relative">
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 }} className="bg-royal-900/40 backdrop-blur-sm p-8 rounded-3xl border border-white/5 mt-16 flex flex-col justify-center items-center text-center shadow-2xl">
-              <div className="w-14 h-14 bg-royal-700/50 rounded-2xl flex items-center justify-center mb-6 border border-royal-600">
-                <TrendingUp className="w-7 h-7 text-accent-400" />
-              </div>
-              <h3 className="text-white font-bold text-3xl mb-2">+45%</h3>
-              <p className="text-slate-400 text-sm font-medium">Incremento médio em vendas nos parceiros ativos.</p>
+          <div className="hidden lg:flex h-[400px] relative items-center justify-center">
+            <motion.div 
+              initial={{ opacity: 0, x: 20, y: -20 }} 
+              animate={{ opacity: 1, x: 0, y: 0 }} 
+              transition={{ delay: 0.2, duration: 0.6 }} 
+              className="absolute top-10 right-10 z-10 hover:z-30 transition-all duration-300 transform hover:scale-105"
+              title="Atendemos Sergipe"
+            >
+              <img src="https://upload.wikimedia.org/wikipedia/commons/b/be/Bandeira_de_Sergipe.svg" alt="Sergipe" className="w-[300px] h-auto object-cover rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] transform rotate-[-8deg] border-4 border-white/10" />
             </motion.div>
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4 }} className="bg-royal-700/60 backdrop-blur-sm p-8 rounded-3xl border border-white/10 mb-16 flex flex-col justify-center items-center text-center shadow-2xl relative z-10 -ml-8">
-              <div className="w-14 h-14 bg-royal-800/50 rounded-2xl flex items-center justify-center mb-6 border border-royal-700">
-                <Users className="w-7 h-7 text-accent-400" />
-              </div>
-              <h3 className="text-white font-bold text-3xl mb-2">500+</h3>
-              <p className="text-slate-300 text-sm font-medium">Lojistas parceiros nos estados de Sergipe e Alagoas.</p>
+            
+            <motion.div 
+              initial={{ opacity: 0, x: -20, y: 20 }} 
+              animate={{ opacity: 1, x: 0, y: 0 }} 
+              transition={{ delay: 0.4, duration: 0.6 }} 
+              className="absolute bottom-10 left-10 z-20 hover:z-30 transition-all duration-300 transform hover:scale-105"
+              title="Atendemos Alagoas"
+            >
+              <img src="https://upload.wikimedia.org/wikipedia/commons/8/88/Bandeira_de_Alagoas.svg" alt="Alagoas" className="w-[300px] h-auto object-cover rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] transform rotate-[6deg] border-4 border-white/10" />
             </motion.div>
           </div>
         </div>

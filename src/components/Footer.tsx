@@ -12,7 +12,7 @@ export default function Footer() {
   return (
     <footer className="bg-royal-900 text-slate-300 pt-20 pb-10 border-t border-royal-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+        <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-12 mb-16">
           <div>
             <Link to="/" className="flex items-center gap-2 mb-6">
               <img src="/logo.png" alt="FL Representações" className="h-12 md:h-16 w-36 md:w-48 object-cover object-center bg-white border-2 border-white rounded shadow-md" />
@@ -21,9 +21,7 @@ export default function Footer() {
               Construindo parcerias sólidas e impulsionando negócios através de soluções em representação comercial no setor moveleiro.
             </p>
             <div className="flex gap-4">
-              <a href="#" className="w-10 h-10 rounded-full bg-royal-800 flex items-center justify-center hover:bg-accent-400 hover:text-royal-900 transition-colors"><Instagram className="w-5 h-5" /></a>
-              <a href="#" className="w-10 h-10 rounded-full bg-royal-800 flex items-center justify-center hover:bg-accent-400 hover:text-royal-900 transition-colors"><Linkedin className="w-5 h-5" /></a>
-              <a href="#" className="w-10 h-10 rounded-full bg-royal-800 flex items-center justify-center hover:bg-accent-400 hover:text-royal-900 transition-colors"><Facebook className="w-5 h-5" /></a>
+              <a href="https://www.instagram.com/fl_representacoes/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-royal-800 flex items-center justify-center hover:bg-accent-400 hover:text-royal-900 transition-colors"><Instagram className="w-5 h-5" /></a>
             </div>
           </div>
 
@@ -36,17 +34,6 @@ export default function Footer() {
               <li><Link to="/#representadas" className="hover:text-accent-400 transition-colors text-sm">Representadas</Link></li>
               <li><Link to="/blog" className="hover:text-accent-400 transition-colors text-sm">Blog de Notícias</Link></li>
               <li><Link to="/admin" className="hover:text-accent-400 transition-colors text-sm font-bold text-royal-200">Painel Admin</Link></li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-white font-bold mb-6 uppercase tracking-wide text-sm">Representadas</h4>
-            <ul className="space-y-3">
-              <li><a href="#" className="hover:text-accent-400 transition-colors text-sm">Marca Alpha</a></li>
-              <li><a href="#" className="hover:text-accent-400 transition-colors text-sm">TechSolutions</a></li>
-              <li><a href="#" className="hover:text-accent-400 transition-colors text-sm">EcoConstruct</a></li>
-              <li><a href="#" className="hover:text-accent-400 transition-colors text-sm">GlobalParts</a></li>
-              <li><a href="#" className="hover:text-accent-400 transition-colors text-sm font-semibold">Seja uma Representada</a></li>
             </ul>
           </div>
 
