@@ -31,14 +31,13 @@ service cloud.firestore {
     }
 
     function isValidContactMessage(data) {
-      // Allow 'company' to be optional but if present, validate it. Or we can just require it to be present (can be empty string)
       return data.keys().hasAll(['name', 'email', 'phone', 'message', 'createdAt']) &&
-             (data.keys().size() == 5 || (data.keys().size() == 6 && data.keys().hasAll(['company']))) &&
+             (data.keys().size() == 5 || (data.keys().size() == 6 && 'company' in data)) &&
              data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
              data.email is string && data.email.size() > 0 && data.email.size() <= 150 &&
              data.phone is string && data.phone.size() > 0 && data.phone.size() <= 50 &&
              data.message is string && data.message.size() > 0 && data.message.size() <= 10000 &&
-             (data.keys().hasAll(['company']) ? (data.company is string && data.company.size() <= 200) : true) &&
+             (!('company' in data) || (data.company is string && data.company.size() <= 200)) &&
              data.createdAt is timestamp;
     }
 
