@@ -1,0 +1,22 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "A product belonging to a specific represented brand",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "The name of the product" },
+        "imageUrl": { "type": "string", "description": "The URL of the product image" },
+        "brandSlug": { "type": "string", "description": "The slug of the brand this product belongs to" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp of creation" }
+      },
+      "required": ["title", "imageUrl", "brandSlug", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/products/{productId}": {
+      "schema": { "$ref": "#/entities/Product" },
+      "description": "Products for the brands"
+    }
+  }
+}

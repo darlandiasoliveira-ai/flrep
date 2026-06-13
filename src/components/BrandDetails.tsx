@@ -1,12 +1,37 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { brands } from '../data';
 import * as motion from 'motion/react-client';
 import { ArrowLeft, Image as ImageIcon } from 'lucide-react';
+import { db } from '../lib/firebase';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 
 export default function BrandDetails() {
   const { slug } = useParams<{ slug: string }>();
   const brand = brands.find(b => b.slug === slug);
+  const [products, setProducts] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!slug) return;
+    
+    const q = query(collection(db, 'products'), where('brandSlug', '==', slug));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const prods: any[] = [];
+      snapshot.forEach((docSnap) => {
+        prods.push({ id: docSnap.id, ...docSnap.data() });
+      });
+      // also include offline placeholder products for demo purposes if desired, 
+      // but we will stick to only DB products as required.
+      setProducts(prods);
+      setIsLoading(false);
+    }, (error) => {
+      console.error('Error fetching products:', error);
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [slug]);
 
   if (!brand) {
     return (
@@ -42,7 +67,7 @@ export default function BrandDetails() {
           <div>
             <h1 className="text-3xl md:text-5xl font-bold text-slate-900 mb-4">{brand.name}</h1>
             <p className="text-lg text-slate-600 max-w-2xl">
-              Nesta página você pode visualizar o catálogo de produtos e os lançamentos da marca {brand.name}. Em breve, as fotos dos produtos estarão disponíveis abaixo.
+              Nesta página você pode visualizar o catálogo de produtos e os lançamentos da marca {brand.name}. {products.length === 0 && 'Em breve, as fotos dos produtos estarão disponíveis abaixo.'}
             </p>
           </div>
         </div>
@@ -53,19 +78,23 @@ export default function BrandDetails() {
             <h2 className="text-2xl font-bold text-slate-900">Catálogo de Produtos</h2>
           </div>
 
-          {brand.products && brand.products.length > 0 ? (
+          {isLoading ? (
+             <div className="py-12 text-center text-slate-500">
+               Carregando catálogo...
+             </div>
+          ) : products.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {brand.products.map((product: any, index: number) => (
-                <div key={index} className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm group hover:shadow-md transition-shadow">
+              {products.map((product: any) => (
+                <div key={product.id} className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm group hover:shadow-md transition-shadow">
                   <div className="aspect-square bg-slate-100 overflow-hidden relative">
                     <img 
-                      src={product.image} 
+                      src={product.imageUrl} 
                       alt={product.title || 'Produto'} 
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   </div>
                   <div className="p-4 text-center border-t border-slate-100">
-                    <h3 className="font-bold text-slate-800">{product.title || `Produto ${index + 1}`}</h3>
+                    <h3 className="font-bold text-slate-800">{product.title}</h3>
                   </div>
                 </div>
               ))}
@@ -73,29 +102,10 @@ export default function BrandDetails() {
           ) : (
             <div className="bg-white rounded-xl border border-dashed border-slate-300 p-12 text-center">
               <ImageIcon className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-              <h3 className="text-xl font-medium text-slate-700 mb-2">Espaço para Fotos dos Produtos</h3>
-              <p className="text-slate-500 max-w-md mx-auto mb-6">
-                Você pode fazer o upload e exibir as fotos dos móveis da {brand.name} aqui. 
+              <h3 className="text-xl font-medium text-slate-700 mb-2">Em breve Novos Produtos</h3>
+              <p className="text-slate-500 max-w-md mx-auto">
+                Estamos atualizando o catálogo da {brand.name}. Volte em breve para conferir as novidades.
               </p>
-              <div className="bg-slate-50 text-slate-600 text-sm p-6 rounded-lg inline-block text-left shadow-inner w-full max-w-2xl">
-                <span className="font-bold text-royal-700 block mb-3 text-base">Passo a passo para inserir imagens:</span>
-                <ol className="list-decimal list-inside space-y-3">
-                  <li>Faça o upload das imagens dos produtos através do ícone de arquivo (+).</li>
-                  <li>Mova as imagens para a pasta <code className="bg-slate-200 px-1.5 py-0.5 rounded text-royal-700">public</code> (geralmente arrastando).</li>
-                  <li>
-                    Acesse o arquivo <code className="bg-slate-200 px-1.5 py-0.5 rounded text-royal-700">src/data.ts</code>.
-                  </li>
-                  <li>
-                    Na marca correspondente, adicione os produtos no array <code className="bg-slate-200 px-1.5 py-0.5 rounded text-royal-700">products</code> assim:
-                    <pre className="bg-slate-800 text-slate-200 p-4 mt-2 rounded-md overflow-x-auto">
-{`products: [
-  { title: "Guarda-roupa Casal", image: "/foto1.png" },
-  { title: "Cama Box", image: "/foto2.png" }
-]`}
-                    </pre>
-                  </li>
-                </ol>
-              </div>
             </div>
           )}
         </div>

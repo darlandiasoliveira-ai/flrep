@@ -15,6 +15,9 @@ import Contact from './components/Contact';
 import Footer from './components/Footer';
 import BrandDetails from './components/BrandDetails';
 
+import AdminLogin from './components/AdminLogin';
+import AdminDashboard from './components/AdminDashboard';
+
 function ScrollHandler() {
   const { pathname, hash } = useLocation();
 
@@ -56,6 +59,8 @@ export default function App() {
           <Route path="/produtos" element={<div className="pt-24 min-h-screen pb-12"><Products /></div>} />
           <Route path="/marcas/:slug" element={<BrandDetails />} />
           <Route path="/blog" element={<div className="pt-24 min-h-screen pb-12"><Blog /></div>} />
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin" element={<AdminDashboard />} />
         </Routes>
       </main>
       <Footer />
