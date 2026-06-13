@@ -41,6 +41,20 @@ service cloud.firestore {
              data.createdAt is timestamp;
     }
 
+    function isValidBlogPost(data) {
+      return data.keys().hasAll(['title', 'slug', 'excerpt', 'content', 'createdAt']) &&
+             data.title is string && data.title.size() > 0 && data.title.size() <= 200 &&
+             data.slug is string && data.slug.size() > 0 && data.slug.size() <= 200 && data.slug.matches('^[a-z0-9\\-]+$') &&
+             data.excerpt is string && data.excerpt.size() > 0 && data.excerpt.size() <= 500 &&
+             data.content is string && data.content.size() > 0 && data.content.size() <= 50000 &&
+             (!('imageUrl' in data) || (data.imageUrl is string && data.imageUrl.size() <= 2048)) &&
+             (!('seoTitle' in data) || (data.seoTitle is string && data.seoTitle.size() <= 200)) &&
+             (!('seoDescription' in data) || (data.seoDescription is string && data.seoDescription.size() <= 500)) &&
+             (!('seoKeywords' in data) || (data.seoKeywords is string && data.seoKeywords.size() <= 500)) &&
+             (!('geoTargeting' in data) || (data.geoTargeting is string && data.geoTargeting.size() <= 200)) &&
+             data.createdAt is timestamp;
+    }
+
     match /messages/{messageId} {
       allow get, list, delete: if isAdmin();
       allow create: if isValidId(messageId) &&
@@ -70,6 +84,20 @@ service cloud.firestore {
                        incoming().createdAt == existing().createdAt;
                        
       allow delete: if isAdmin() && isValidId(productId);
+    }
+
+    match /blogPosts/{postId} {
+      allow get: if isValidId(postId);
+      allow list: if true;
+      allow create: if isAdmin() &&
+                       isValidId(postId) &&
+                       isValidBlogPost(incoming()) &&
+                       incoming().createdAt == request.time;
+      allow update: if isAdmin() &&
+                       isValidId(postId) &&
+                       isValidBlogPost(incoming()) &&
+                       incoming().createdAt == existing().createdAt;
+      allow delete: if isAdmin() && isValidId(postId);
     }
   }
 }

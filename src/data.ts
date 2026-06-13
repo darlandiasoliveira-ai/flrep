@@ -49,9 +49,3 @@ export const brands = [
     products: [] 
   }
 ];
-
-export const blogPosts = [
-  { id: 1, title: 'Tendências em Cozinhas Moduladas para o Próximo Ano', date: '10 Junho 2026', excerpt: 'Descubra como os novos laminados e ferragens de toque estão dominando os novos modelos.' },
-  { id: 2, title: 'Visual Merchandising: Como expor Racks na sua loja', date: '25 Maio 2026', excerpt: 'Um guia completo para aumentar a conversão ambientando peças em espaços compactos no showroom.' },
-  { id: 3, title: 'Crescimento da busca por Roupeiros inteligentes', date: '05 Maio 2026', excerpt: 'Entenda os benefícios das divisórias otimizadas e luzes de LED embutidas nos projetos.' }
-];
