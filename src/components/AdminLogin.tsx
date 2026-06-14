@@ -64,7 +64,7 @@ export default function AdminLogin() {
           <div className="bg-white py-8 px-4 shadow-xl sm:rounded-2xl sm:px-10 border border-slate-100 text-center">
             
             <p className="mb-6 text-slate-600">
-              Acesse com a sua conta Google (darlandiasoliveira@gmail.com) para gerenciar o catálogo.
+              Acesse com a sua conta Google autorizada, para gerenciar o catálogo.
             </p>
 
             {error && (
