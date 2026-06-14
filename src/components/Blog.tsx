@@ -3,6 +3,7 @@ import * as motion from 'motion/react-client';
 import { db } from '../lib/firebase';
 import { collection, query, onSnapshot, orderBy } from 'firebase/firestore';
 import { Clock } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function Blog() {
   const [blogPosts, setBlogPosts] = useState<any[]>([]);
@@ -45,14 +46,14 @@ export default function Blog() {
         ) : blogPosts.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {blogPosts.map((post, index) => (
-              <motion.div 
-                key={post.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-xl hover:border-royal-100 transition-all group cursor-pointer flex flex-col h-full"
-              >
+              <Link to={`/blog/${post.slug}`} key={post.id} className="block group">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                  className="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-xl hover:border-royal-100 transition-all cursor-pointer flex flex-col h-full"
+                >
                 <div className="h-48 bg-slate-200 relative overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-t from-royal-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
                   {post.imageUrl ? (
@@ -79,7 +80,8 @@ export default function Blog() {
                     </svg>
                   </span>
                 </div>
-              </motion.div>
+                </motion.div>
+              </Link>
             ))}
           </div>
         ) : (

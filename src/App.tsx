@@ -11,6 +11,7 @@ import About from './components/About';
 import Products from './components/Products';
 import Brands from './components/Brands';
 import Blog from './components/Blog';
+import BlogPost from './components/BlogPost';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import BrandDetails from './components/BrandDetails';
@@ -59,6 +60,7 @@ export default function App() {
           <Route path="/produtos" element={<div className="pt-24 min-h-screen pb-12"><Products /></div>} />
           <Route path="/marcas/:slug" element={<BrandDetails />} />
           <Route path="/blog" element={<div className="pt-24 min-h-screen pb-12"><Blog /></div>} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminDashboard />} />
         </Routes>
