@@ -289,7 +289,7 @@ export default function AdminDashboard() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Conteúdo Principal (Editor Avançado - Copie e cole do Gemini com as formatações)</label>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Conteúdo do Artigo (Atualizado - Novo Editor Tiptap)</label>
                         <RichTextEditor value={newContent} onChange={setNewContent} />
                       </div>
                       <div>
