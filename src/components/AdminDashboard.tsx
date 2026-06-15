@@ -286,7 +286,7 @@ export default function AdminDashboard() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Conteúdo (HTML/Rich-Text)</label>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Conteúdo Principal (Editor Avançado - Copie e cole do Gemini com as formatações)</label>
                         <RichTextEditor value={newContent} onChange={setNewContent} />
                       </div>
                       <div>
