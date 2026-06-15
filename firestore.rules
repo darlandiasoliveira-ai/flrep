@@ -52,6 +52,9 @@ service cloud.firestore {
              (!('seoDescription' in data) || (data.seoDescription is string && data.seoDescription.size() <= 500)) &&
              (!('seoKeywords' in data) || (data.seoKeywords is string && data.seoKeywords.size() <= 500)) &&
              (!('geoTargeting' in data) || (data.geoTargeting is string && data.geoTargeting.size() <= 200)) &&
+             (!('geoTakeaways' in data) || (data.geoTakeaways is string && data.geoTakeaways.size() <= 2000)) &&
+             (!('geoStats' in data) || (data.geoStats is string && data.geoStats.size() <= 2000)) &&
+             (!('geoFaq' in data) || (data.geoFaq is string && data.geoFaq.size() <= 5000)) &&
              data.createdAt is timestamp;
     }
 

@@ -5,6 +5,8 @@ import { db } from '../lib/firebase';
 import { collection, query, where, onSnapshot, limit } from 'firebase/firestore';
 import { ArrowLeft, Clock, User, Tag } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import remarkBreaks from 'remark-breaks';
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
@@ -149,9 +151,37 @@ export default function BlogPost() {
           </figure>
         )}
 
+        {/* GEO Optimization Visual Elements */}
+        {post.geoTakeaways && (
+          <div className="mb-10 bg-royal-50 border border-royal-100 rounded-2xl p-6 md:p-8">
+            <h3 className="text-xl font-bold text-royal-900 mb-4">Principais Tópicos (Key Takeaways)</h3>
+            <div className="prose prose-royal max-w-none text-royal-800">
+              <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>{post.geoTakeaways}</ReactMarkdown>
+            </div>
+          </div>
+        )}
+
+        {post.geoStats && (
+          <div className="mb-10 bg-slate-50 border-l-4 border-accent-400 p-6 md:p-8 rounded-r-2xl">
+            <h3 className="text-lg font-bold text-slate-900 mb-2">Dados e Estatísticas</h3>
+            <div className="prose prose-slate max-w-none text-slate-700">
+              <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>{post.geoStats}</ReactMarkdown>
+            </div>
+          </div>
+        )}
+
         <div className="prose prose-lg prose-slate max-w-none prose-headings:text-slate-900 prose-headings:font-bold prose-a:text-royal-700 hover:prose-a:text-royal-800 prose-img:rounded-2xl" itemProp="articleBody">
-          <ReactMarkdown>{post.content}</ReactMarkdown>
+          <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>{post.content}</ReactMarkdown>
         </div>
+
+        {post.geoFaq && (
+          <div className="mt-12 mb-10 pt-10 border-t border-slate-200" itemScope itemType="https://schema.org/FAQPage">
+            <h3 className="text-2xl font-bold text-slate-900 mb-6">Perguntas Frequentes</h3>
+            <div className="prose prose-slate max-w-none">
+              <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>{post.geoFaq}</ReactMarkdown>
+            </div>
+          </div>
+        )}
         
         {post.seoKeywords && (
           <div className="mt-16 pt-8 border-t border-slate-200">

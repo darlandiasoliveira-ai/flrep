@@ -51,6 +51,9 @@ export default function AdminDashboard() {
   const [newSeoDescription, setNewSeoDescription] = useState('');
   const [newSeoKeywords, setNewSeoKeywords] = useState('');
   const [newGeoTargeting, setNewGeoTargeting] = useState('');
+  const [newGeoTakeaways, setNewGeoTakeaways] = useState('');
+  const [newGeoStats, setNewGeoStats] = useState('');
+  const [newGeoFaq, setNewGeoFaq] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -138,6 +141,9 @@ export default function AdminDashboard() {
         seoDescription: newSeoDescription || null,
         seoKeywords: newSeoKeywords || null,
         geoTargeting: newGeoTargeting || null,
+        geoTakeaways: newGeoTakeaways || null,
+        geoStats: newGeoStats || null,
+        geoFaq: newGeoFaq || null,
         createdAt: serverTimestamp()
       });
       setNewTitle('');
@@ -149,6 +155,9 @@ export default function AdminDashboard() {
       setNewSeoDescription('');
       setNewSeoKeywords('');
       setNewGeoTargeting('');
+      setNewGeoTakeaways('');
+      setNewGeoStats('');
+      setNewGeoFaq('');
       setIsAdding(false);
     } catch (error) {
       handleFirestoreError(error, OperationType.CREATE, 'blogPosts');
@@ -315,13 +324,45 @@ export default function AdminDashboard() {
                             className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-royal-500"
                           />
                         </div>
-                        <div>
-                          <label className="block text-sm font-medium text-slate-700 mb-1">GEO Targeting</label>
+                        <div className="mb-4">
+                          <label className="block text-sm font-medium text-slate-700 mb-1">GEO Targeting (Localização)</label>
                           <input 
                             type="text" value={newGeoTargeting} onChange={(e) => setNewGeoTargeting(e.target.value)}
                             className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-royal-500"
                             placeholder="Sergipe e Alagoas, nordeste do Brasil"
                           />
+                        </div>
+                      </div>
+
+                      <div className="border-t border-slate-200 mt-6 pt-6">
+                        <h4 className="font-semibold text-slate-800 mb-3">Otimização para IAs (GEO)</h4>
+                        <p className="text-sm text-slate-500 mb-4">Campos específicos para melhorar a visibilidade do artigo em respostas de ferramentas baseadas em IA (Google AI Overviews, ChatGPT, etc).</p>
+                        
+                        <div className="space-y-4 mb-4">
+                          <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Principais Tópicos (Key Takeaways)</label>
+                            <textarea 
+                              value={newGeoTakeaways} onChange={(e) => setNewGeoTakeaways(e.target.value)} rows={3}
+                              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-royal-500"
+                              placeholder="Liste de 3 a 5 pontos principais do artigo (use marcadores, ideal para IAs usarem em listas)."
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Estatísticas e Dados (Citações de Autoridade)</label>
+                            <textarea 
+                              value={newGeoStats} onChange={(e) => setNewGeoStats(e.target.value)} rows={3}
+                              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-royal-500"
+                              placeholder="Inclua números, percentuais ou dados de mercado relevantes do texto para dar credibilidade."
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">FAQ (Perguntas e Respostas Frequentes)</label>
+                            <textarea 
+                              value={newGeoFaq} onChange={(e) => setNewGeoFaq(e.target.value)} rows={4}
+                              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-royal-500"
+                              placeholder="Q: Pergunta? R: Resposta direta e objetiva."
+                            />
+                          </div>
                         </div>
                       </div>
                       <div className="flex gap-3 pt-4 border-t border-slate-200">
