@@ -5,6 +5,7 @@ import { brands } from '../data';
 import { auth, db } from '../lib/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { collection, query, where, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
+import RichTextEditor from './RichTextEditor';
 
 enum OperationType {
   CREATE = 'create',
@@ -285,11 +286,8 @@ export default function AdminDashboard() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Conteúdo (HTML/Texto)</label>
-                        <textarea 
-                          required value={newContent} onChange={(e) => setNewContent(e.target.value)} rows={6}
-                          className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-royal-500"
-                        />
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Conteúdo (HTML/Rich-Text)</label>
+                        <RichTextEditor value={newContent} onChange={setNewContent} />
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">URL da Imagem de Destaque</label>
@@ -341,27 +339,15 @@ export default function AdminDashboard() {
                         <div className="space-y-4 mb-4">
                           <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1">Principais Tópicos (Key Takeaways)</label>
-                            <textarea 
-                              value={newGeoTakeaways} onChange={(e) => setNewGeoTakeaways(e.target.value)} rows={3}
-                              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-royal-500"
-                              placeholder="Liste de 3 a 5 pontos principais do artigo (use marcadores, ideal para IAs usarem em listas)."
-                            />
+                            <RichTextEditor value={newGeoTakeaways} onChange={setNewGeoTakeaways} />
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1">Estatísticas e Dados (Citações de Autoridade)</label>
-                            <textarea 
-                              value={newGeoStats} onChange={(e) => setNewGeoStats(e.target.value)} rows={3}
-                              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-royal-500"
-                              placeholder="Inclua números, percentuais ou dados de mercado relevantes do texto para dar credibilidade."
-                            />
+                            <RichTextEditor value={newGeoStats} onChange={setNewGeoStats} />
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1">FAQ (Perguntas e Respostas Frequentes)</label>
-                            <textarea 
-                              value={newGeoFaq} onChange={(e) => setNewGeoFaq(e.target.value)} rows={4}
-                              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-royal-500"
-                              placeholder="Q: Pergunta? R: Resposta direta e objetiva."
-                            />
+                            <RichTextEditor value={newGeoFaq} onChange={setNewGeoFaq} />
                           </div>
                         </div>
                       </div>
