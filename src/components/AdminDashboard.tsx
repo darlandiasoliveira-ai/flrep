@@ -132,21 +132,24 @@ export default function AdminDashboard() {
     if (!newTitle || !newSlug || !newExcerpt || !newContent) return;
 
     try {
-      await addDoc(collection(db, 'blogPosts'), {
+      const postData: any = {
         title: newTitle,
         slug: newSlug,
         excerpt: newExcerpt,
         content: newContent,
-        imageUrl: newImage || null,
-        seoTitle: newSeoTitle || null,
-        seoDescription: newSeoDescription || null,
-        seoKeywords: newSeoKeywords || null,
-        geoTargeting: newGeoTargeting || null,
-        geoTakeaways: newGeoTakeaways || null,
-        geoStats: newGeoStats || null,
-        geoFaq: newGeoFaq || null,
         createdAt: serverTimestamp()
-      });
+      };
+      
+      if (newImage) postData.imageUrl = newImage;
+      if (newSeoTitle) postData.seoTitle = newSeoTitle;
+      if (newSeoDescription) postData.seoDescription = newSeoDescription;
+      if (newSeoKeywords) postData.seoKeywords = newSeoKeywords;
+      if (newGeoTargeting) postData.geoTargeting = newGeoTargeting;
+      if (newGeoTakeaways) postData.geoTakeaways = newGeoTakeaways;
+      if (newGeoStats) postData.geoStats = newGeoStats;
+      if (newGeoFaq) postData.geoFaq = newGeoFaq;
+
+      await addDoc(collection(db, 'blogPosts'), postData);
       setNewTitle('');
       setNewSlug('');
       setNewExcerpt('');
