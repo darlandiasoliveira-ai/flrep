@@ -3,16 +3,14 @@ import StarterKit from '@tiptap/starter-kit'
 import Link from '@tiptap/extension-link'
 import { Bold, Italic, Strikethrough, List, ListOrdered, Heading2, Heading3, Quote } from 'lucide-react'
 
-const extensions = [
-  StarterKit,
-  Link.configure({
-    openOnClick: false,
-  }),
-];
-
 export default function RichTextEditor({ value, onChange }: { value: string, onChange: (value: string) => void }) {
   const editor = useEditor({
-    extensions: extensions,
+    extensions: [
+      StarterKit,
+      Link.configure({
+        openOnClick: false,
+      }),
+    ],
     content: value,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML())
