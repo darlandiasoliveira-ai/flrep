@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Upload, Image as ImageIcon, Trash2, FolderEdit } from 'lucide-react';
+import { LogOut, Upload, Image as ImageIcon, Trash2, FolderEdit, Edit2 } from 'lucide-react';
 import { brands } from '../data';
 import { auth, db, storage } from '../lib/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { collection, query, where, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import RichTextEditor from './RichTextEditor';
 
@@ -44,6 +44,7 @@ export default function AdminDashboard() {
   const [products, setProducts] = useState<any[]>([]);
   const [blogPosts, setBlogPosts] = useState<any[]>([]);
   const [isAdding, setIsAdding] = useState(false);
+  const [editingPostId, setEditingPostId] = useState<string | null>(null);
   const [newTitle, setNewTitle] = useState('');
   const [newImage, setNewImage] = useState('');
   const [isUploadingImage, setIsUploadingImage] = useState(false);
@@ -149,6 +150,40 @@ export default function AdminDashboard() {
     }
   };
 
+  const resetBlogForm = () => {
+    setNewTitle('');
+    setNewSlug('');
+    setNewExcerpt('');
+    setNewContent('');
+    setNewImage('');
+    setNewSeoTitle('');
+    setNewSeoDescription('');
+    setNewSeoKeywords('');
+    setNewGeoTargeting('');
+    setNewGeoTakeaways('');
+    setNewGeoStats('');
+    setNewGeoFaq('');
+    setEditingPostId(null);
+    setIsAdding(false);
+  };
+
+  const handleEditPost = (post: any) => {
+    setNewTitle(post.title || '');
+    setNewSlug(post.slug || '');
+    setNewExcerpt(post.excerpt || '');
+    setNewContent(post.content || '');
+    setNewImage(post.imageUrl || '');
+    setNewSeoTitle(post.seoTitle || '');
+    setNewSeoDescription(post.seoDescription || '');
+    setNewSeoKeywords(post.seoKeywords || '');
+    setNewGeoTargeting(post.geoTargeting || '');
+    setNewGeoTakeaways(post.geoTakeaways || '');
+    setNewGeoStats(post.geoStats || '');
+    setNewGeoFaq(post.geoFaq || '');
+    setEditingPostId(post.id);
+    setIsAdding(true);
+  };
+
   const handleAddBlogPost = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle || !newSlug || !newExcerpt || !newContent) return;
@@ -159,35 +194,33 @@ export default function AdminDashboard() {
         slug: newSlug,
         excerpt: newExcerpt,
         content: newContent,
-        createdAt: serverTimestamp()
       };
       
-      if (newImage) postData.imageUrl = newImage;
-      if (newSeoTitle) postData.seoTitle = newSeoTitle;
-      if (newSeoDescription) postData.seoDescription = newSeoDescription;
-      if (newSeoKeywords) postData.seoKeywords = newSeoKeywords;
-      if (newGeoTargeting) postData.geoTargeting = newGeoTargeting;
-      if (newGeoTakeaways) postData.geoTakeaways = newGeoTakeaways;
-      if (newGeoStats) postData.geoStats = newGeoStats;
-      if (newGeoFaq) postData.geoFaq = newGeoFaq;
+      if (!editingPostId) {
+        postData.createdAt = serverTimestamp();
+      } else {
+        postData.updatedAt = serverTimestamp();
+      }
+      
+      postData.imageUrl = newImage || '';
+      postData.seoTitle = newSeoTitle || '';
+      postData.seoDescription = newSeoDescription || '';
+      postData.seoKeywords = newSeoKeywords || '';
+      postData.geoTargeting = newGeoTargeting || '';
+      postData.geoTakeaways = newGeoTakeaways || '';
+      postData.geoStats = newGeoStats || '';
+      postData.geoFaq = newGeoFaq || '';
 
-      await addDoc(collection(db, 'blogPosts'), postData);
-      setNewTitle('');
-      setNewSlug('');
-      setNewExcerpt('');
-      setNewContent('');
-      setNewImage('');
-      setNewSeoTitle('');
-      setNewSeoDescription('');
-      setNewSeoKeywords('');
-      setNewGeoTargeting('');
-      setNewGeoTakeaways('');
-      setNewGeoStats('');
-      setNewGeoFaq('');
-      setIsAdding(false);
+      if (editingPostId) {
+        await updateDoc(doc(db, 'blogPosts', editingPostId), postData);
+      } else {
+        await addDoc(collection(db, 'blogPosts'), postData);
+      }
+      
+      resetBlogForm();
     } catch (error) {
-      handleFirestoreError(error, OperationType.CREATE, 'blogPosts');
-      alert('Erro ao adicionar artigo. Verifique as permissões.');
+      handleFirestoreError(error, editingPostId ? OperationType.UPDATE : OperationType.CREATE, 'blogPosts');
+      alert(`Erro ao ${editingPostId ? 'atualizar' : 'adicionar'} artigo. Verifique as permissões.`);
     }
   };
 
@@ -284,7 +317,7 @@ export default function AdminDashboard() {
                   </button>
                 ) : (
                   <form onSubmit={handleAddBlogPost} className="bg-slate-50 p-6 rounded-xl border border-slate-200">
-                    <h3 className="font-bold text-slate-900 mb-4">Novo Artigo</h3>
+                    <h3 className="font-bold text-slate-900 mb-4">{editingPostId ? 'Editar Artigo' : 'Novo Artigo'}</h3>
                     <div className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -393,9 +426,9 @@ export default function AdminDashboard() {
                       </div>
                       <div className="flex gap-3 pt-4 border-t border-slate-200">
                         <button type="submit" className="bg-royal-700 text-white px-6 py-2 rounded-lg font-medium hover:bg-royal-800">
-                          Publicar Artigo
+                          {editingPostId ? 'Salvar Alterações' : 'Publicar Artigo'}
                         </button>
-                        <button type="button" onClick={() => setIsAdding(false)} className="bg-white text-slate-700 border border-slate-300 px-6 py-2 rounded-lg font-medium hover:bg-slate-50">
+                        <button type="button" onClick={resetBlogForm} className="bg-white text-slate-700 border border-slate-300 px-6 py-2 rounded-lg font-medium hover:bg-slate-50">
                           Cancelar
                         </button>
                       </div>
@@ -414,9 +447,14 @@ export default function AdminDashboard() {
                         <h4 className="font-bold text-slate-800">{post.title}</h4>
                         <p className="text-xs text-slate-500">Slug: {post.slug} | Data: {post.createdAt ? post.createdAt.toDate().toLocaleDateString('pt-BR') : 'Aguardando...'}</p>
                       </div>
-                      <button onClick={() => handleDeletePost(post.id)} className="bg-red-50 text-red-500 p-2 rounded-lg hover:bg-red-100 transition-colors">
-                        <Trash2 className="w-5 h-5" />
-                      </button>
+                      <div className="flex gap-2">
+                        <button onClick={() => handleEditPost(post)} className="bg-slate-50 text-slate-600 p-2 rounded-lg hover:bg-slate-100 transition-colors" title="Editar Artigo">
+                          <Edit2 className="w-5 h-5" />
+                        </button>
+                        <button onClick={() => handleDeletePost(post.id)} className="bg-red-50 text-red-500 p-2 rounded-lg hover:bg-red-100 transition-colors" title="Remover Artigo">
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>

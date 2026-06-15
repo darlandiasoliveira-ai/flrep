@@ -3,7 +3,7 @@ import StarterKit from '@tiptap/starter-kit'
 import Link from '@tiptap/extension-link'
 import Image from '@tiptap/extension-image'
 import { Bold, Italic, Strikethrough, List, ListOrdered, Heading2, Heading3, Quote, ImageIcon, Loader2 } from 'lucide-react'
-import { useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
 import { storage } from '../lib/firebase'
 
