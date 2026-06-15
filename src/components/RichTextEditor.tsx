@@ -1,12 +1,26 @@
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Link from '@tiptap/extension-link'
-import { Bold, Italic, Strikethrough, List, ListOrdered, Heading2, Heading3, Quote } from 'lucide-react'
+import Image from '@tiptap/extension-image'
+import { Bold, Italic, Strikethrough, List, ListOrdered, Heading2, Heading3, Quote, ImageIcon, Loader2 } from 'lucide-react'
+import { useRef, useState } from 'react'
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
+import { storage } from '../lib/firebase'
 
 export default function RichTextEditor({ value, onChange }: { value: string, onChange: (value: string) => void }) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
   const editor = useEditor({
     extensions: [
       StarterKit,
+      Image.configure({
+        inline: true,
+        allowBase64: true,
+        HTMLAttributes: {
+          class: 'rounded-lg max-w-full my-4',
+        },
+      }),
       Link.configure({
         openOnClick: false,
       }),
@@ -21,6 +35,26 @@ export default function RichTextEditor({ value, onChange }: { value: string, onC
       },
     },
   })
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const storageRef = ref(storage, `blog-images/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`);
+      const snapshot = await uploadBytesResumable(storageRef, file);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      
+      editor?.chain().focus().setImage({ src: downloadURL }).run();
+    } catch (error) {
+      console.error("Erro ao fazer upload da imagem", error);
+      alert("Erro ao fazer upload. Verifique as permissões do Firebase Storage.");
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  }
 
   if (!editor) {
     return null
@@ -88,6 +122,23 @@ export default function RichTextEditor({ value, onChange }: { value: string, onC
         >
           <Quote className="w-4 h-4" />
         </button>
+        <div className="w-px h-6 bg-slate-300 mx-1 self-center" />
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={isUploading}
+          className="p-2 rounded text-slate-600 hover:bg-slate-100 disabled:opacity-50 relative"
+          title="Inserir Imagem (Upload)"
+        >
+          {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImageIcon className="w-4 h-4" />}
+        </button>
+        <input 
+          type="file" 
+          ref={fileInputRef} 
+          onChange={handleImageUpload} 
+          accept="image/*" 
+          className="hidden" 
+        />
       </div>
       <EditorContent editor={editor} className="bg-white min-h-[200px]" />
     </div>

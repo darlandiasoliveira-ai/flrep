@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Upload, Image as ImageIcon, Trash2, FolderEdit } from 'lucide-react';
 import { brands } from '../data';
-import { auth, db } from '../lib/firebase';
+import { auth, db, storage } from '../lib/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { collection, query, where, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import RichTextEditor from './RichTextEditor';
 
 enum OperationType {
@@ -45,6 +46,27 @@ export default function AdminDashboard() {
   const [isAdding, setIsAdding] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newImage, setNewImage] = useState('');
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingImage(true);
+    try {
+      const storageRef = ref(storage, `uploads/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`);
+      const snapshot = await uploadBytesResumable(storageRef, file);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      setNewImage(downloadURL);
+    } catch (error) {
+      console.error("Erro ao fazer upload da imagem", error);
+      alert("Erro ao fazer upload. Verifique as permissões do Firebase Storage.");
+    } finally {
+      setIsUploadingImage(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
   const [newSlug, setNewSlug] = useState('');
   const [newExcerpt, setNewExcerpt] = useState('');
   const [newContent, setNewContent] = useState('');
@@ -293,11 +315,26 @@ export default function AdminDashboard() {
                         <RichTextEditor value={newContent} onChange={setNewContent} />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">URL da Imagem de Destaque</label>
-                        <input 
-                          type="url" value={newImage} onChange={(e) => setNewImage(e.target.value)}
-                          className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-royal-500"
-                        />
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Imagem de Destaque (Upload ou URL)</label>
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={isUploadingImage}
+                            className="px-4 py-2 bg-slate-100 text-slate-700 border border-slate-300 rounded-lg hover:bg-slate-200 flex-shrink-0 disabled:opacity-50"
+                          >
+                            {isUploadingImage ? 'Enviando...' : 'Fazer Upload'}
+                          </button>
+                          <input 
+                            type="url" 
+                            value={newImage} 
+                            onChange={(e) => setNewImage(e.target.value)}
+                            placeholder="Ou cole a URL da imagem aqui"
+                            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-royal-500"
+                          />
+                        </div>
+                        {newImage && <img src={newImage} alt="Preview" className="mt-2 h-32 object-cover rounded-lg border border-slate-200" />}
+                        <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleImageUpload} />
                       </div>
                       <div className="border-t border-slate-200 mt-4 pt-4">
                         <h4 className="font-semibold text-slate-800 mb-3">Informações de SEO e GEO</h4>
@@ -425,16 +462,26 @@ export default function AdminDashboard() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">URL da Imagem</label>
-                        <input 
-                          type="url" 
-                          required
-                          value={newImage}
-                          onChange={(e) => setNewImage(e.target.value)}
-                          className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-royal-500 focus:border-royal-500"
-                          placeholder="Ex: https://site.com/imagem.jpg"
-                        />
-                        <p className="text-xs text-slate-500 mt-2">Dica: Você pode copiar o endereço de uma imagem da internet para carregar aqui.</p>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Imagem do Produto (Upload ou URL)</label>
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={isUploadingImage}
+                            className="px-4 py-2 bg-slate-100 text-slate-700 border border-slate-300 rounded-lg hover:bg-slate-200 flex-shrink-0 disabled:opacity-50"
+                          >
+                            {isUploadingImage ? 'Enviando...' : 'Fazer Upload'}
+                          </button>
+                          <input 
+                            type="url" 
+                            required
+                            value={newImage}
+                            onChange={(e) => setNewImage(e.target.value)}
+                            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-royal-500 focus:border-royal-500"
+                            placeholder="Ou cole a URL da imagem aqui"
+                          />
+                        </div>
+                        {newImage && <img src={newImage} alt="Preview" className="mt-2 h-32 object-cover rounded-lg border border-slate-200" />}
                       </div>
                       <div className="flex gap-3 pt-2">
                         <button 
