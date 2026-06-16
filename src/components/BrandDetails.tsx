@@ -10,19 +10,20 @@ export default function BrandDetails() {
   const { slug } = useParams<{ slug: string }>();
   const brand = brands.find(b => b.slug === slug);
   const [products, setProducts] = useState<any[]>([]);
+  const [catalogs, setCatalogs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!slug) return;
     
-    const q = query(collection(db, 'products'), where('brandSlug', '==', slug));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    setIsLoading(true);
+
+    const qProducts = query(collection(db, 'products'), where('brandSlug', '==', slug));
+    const unsubscribeProducts = onSnapshot(qProducts, (snapshot) => {
       const prods: any[] = [];
       snapshot.forEach((docSnap) => {
         prods.push({ id: docSnap.id, ...docSnap.data() });
       });
-      // also include offline placeholder products for demo purposes if desired, 
-      // but we will stick to only DB products as required.
       setProducts(prods);
       setIsLoading(false);
     }, (error) => {
@@ -30,7 +31,21 @@ export default function BrandDetails() {
       setIsLoading(false);
     });
 
-    return () => unsubscribe();
+    const qCatalogs = query(collection(db, 'catalogs'), where('brandSlug', '==', slug));
+    const unsubscribeCatalogs = onSnapshot(qCatalogs, (snapshot) => {
+      const cats: any[] = [];
+      snapshot.forEach((docSnap) => {
+        cats.push({ id: docSnap.id, ...docSnap.data() });
+      });
+      setCatalogs(cats);
+    }, (error) => {
+      console.error('Error fetching catalogs:', error);
+    });
+
+    return () => {
+      unsubscribeProducts();
+      unsubscribeCatalogs();
+    };
   }, [slug]);
 
   if (!brand) {
@@ -71,6 +86,38 @@ export default function BrandDetails() {
             </p>
           </div>
         </div>
+
+        {catalogs.length > 0 && (
+          <div className="mb-16">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-8 h-1 bg-royal-700 rounded-full"></div>
+              <h2 className="text-2xl font-bold text-slate-900">Catálogos Disponíveis</h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {catalogs.map(catalog => (
+                <a 
+                  key={catalog.id} 
+                  href={catalog.fileUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="group bg-white rounded-xl border border-slate-200 p-6 flex flex-col items-center text-center hover:border-royal-300 hover:shadow-md transition-all h-full"
+                >
+                  <div className="w-16 h-16 bg-royal-50 text-royal-700 rounded-full flex items-center justify-center mb-4 group-hover:bg-royal-100 group-hover:scale-110 transition-transform">
+                    {catalog.fileUrl?.includes('.pdf') ? (
+                      <span className="font-bold text-lg">PDF</span>
+                    ) : (
+                      <ImageIcon className="w-8 h-8" />
+                    )}
+                  </div>
+                  <h3 className="font-bold text-slate-900 text-lg mb-2">{catalog.title}</h3>
+                  <span className="text-sm font-medium text-royal-600 group-hover:text-royal-800 flex items-center gap-1 mt-auto">
+                    Acessar Catálogo &rarr;
+                  </span>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="mb-12">
           <div className="flex items-center gap-3 mb-8">

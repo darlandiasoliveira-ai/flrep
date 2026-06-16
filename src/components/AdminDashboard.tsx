@@ -42,13 +42,19 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('brand_' + brands[0].slug);
   const [products, setProducts] = useState<any[]>([]);
+  const [catalogs, setCatalogs] = useState<any[]>([]);
   const [blogPosts, setBlogPosts] = useState<any[]>([]);
   const [isAdding, setIsAdding] = useState(false);
+  const [isAddingCatalog, setIsAddingCatalog] = useState(false);
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
   const [newTitle, setNewTitle] = useState('');
   const [newImage, setNewImage] = useState('');
+  const [newCatalogTitle, setNewCatalogTitle] = useState('');
+  const [newCatalogFile, setNewCatalogFile] = useState('');
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isUploadingCatalog, setIsUploadingCatalog] = useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const catalogInputRef = React.useRef<HTMLInputElement>(null);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -66,6 +72,56 @@ export default function AdminDashboard() {
     } finally {
       setIsUploadingImage(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleCatalogUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingCatalog(true);
+    try {
+      const storageRef = ref(storage, `catalogs/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`);
+      const snapshot = await uploadBytesResumable(storageRef, file);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      setNewCatalogFile(downloadURL);
+    } catch (error) {
+      console.error("Erro ao fazer upload do catálogo", error);
+      alert("Erro ao fazer upload. Verifique as permissões do Firebase.");
+    } finally {
+      setIsUploadingCatalog(false);
+      if (catalogInputRef.current) catalogInputRef.current.value = '';
+    }
+  };
+
+  const handleAddCatalog = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCatalogTitle || !newCatalogFile) return;
+
+    try {
+      const currentBrandSlug = activeTab.replace('brand_', '');
+      await addDoc(collection(db, 'catalogs'), {
+        title: newCatalogTitle,
+        fileUrl: newCatalogFile,
+        brandSlug: currentBrandSlug,
+        createdAt: serverTimestamp()
+      });
+      setNewCatalogTitle('');
+      setNewCatalogFile('');
+      setIsAddingCatalog(false);
+    } catch (error) {
+      console.error("Erro ao adicionar catálogo", error);
+      alert("Erro ao adicionar catálogo.");
+    }
+  };
+
+  const handleDeleteCatalog = async (id: string) => {
+    if (window.confirm('Tem certeza que deseja remover este catálogo?')) {
+      try {
+        await deleteDoc(doc(db, 'catalogs', id));
+      } catch (error) {
+        console.error("Erro ao remover catálogo", error);
+      }
     }
   };
   const [newSlug, setNewSlug] = useState('');
@@ -107,7 +163,21 @@ export default function AdminDashboard() {
         handleFirestoreError(error, OperationType.LIST, 'products');
       });
 
-      return () => unsubscribe();
+      const qCatalogs = query(collection(db, 'catalogs'), where('brandSlug', '==', brandSlug));
+      const unsubscribeCatalogs = onSnapshot(qCatalogs, (snapshot) => {
+        const cats: any[] = [];
+        snapshot.forEach((docSnap) => {
+          cats.push({ id: docSnap.id, ...docSnap.data() });
+        });
+        setCatalogs(cats);
+      }, (error) => {
+        console.error("Error listing catalogs: ", error);
+      });
+
+      return () => {
+        unsubscribe();
+        unsubscribeCatalogs();
+      };
     } else if (activeTab === 'blog') {
       const q = query(collection(db, 'blogPosts'));
       const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -538,6 +608,104 @@ export default function AdminDashboard() {
                       </div>
                     </div>
                   </form>
+                )}
+              </div>
+
+              {/* SECTION: CATÁLOGOS */}
+              <div className="mb-12">
+                <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
+                  <h3 className="font-bold text-slate-900">Catálogos da Fábrica ({catalogs.length})</h3>
+                  {!isAddingCatalog && (
+                    <button 
+                      onClick={() => setIsAddingCatalog(true)}
+                      className="text-sm font-medium text-royal-700 hover:text-royal-800 flex items-center gap-1"
+                    >
+                      <Upload className="w-4 h-4" /> Adicionar Catálogo
+                    </button>
+                  )}
+                </div>
+
+                {isAddingCatalog && (
+                  <form onSubmit={handleAddCatalog} className="bg-slate-50 p-6 rounded-xl border border-slate-200 mb-6">
+                    <h4 className="font-bold text-slate-900 mb-4">Novo Catálogo</h4>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Título do Catálogo</label>
+                        <input 
+                          type="text" 
+                          required
+                          value={newCatalogTitle}
+                          onChange={(e) => setNewCatalogTitle(e.target.value)}
+                          className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-royal-500 focus:border-royal-500"
+                          placeholder="Ex: Catálogo 2024"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Arquivo do Catálogo (Upload de PDF ou Imagem)</label>
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => catalogInputRef.current?.click()}
+                            disabled={isUploadingCatalog}
+                            className="px-4 py-2 bg-slate-100 text-slate-700 border border-slate-300 rounded-lg hover:bg-slate-200 flex-shrink-0 disabled:opacity-50"
+                          >
+                            {isUploadingCatalog ? 'Enviando...' : 'Fazer Upload'}
+                          </button>
+                          <input 
+                            type="url" 
+                            required
+                            value={newCatalogFile}
+                            onChange={(e) => setNewCatalogFile(e.target.value)}
+                            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-royal-500 focus:border-royal-500"
+                            placeholder="Ou cole a URL do arquivo aqui"
+                          />
+                        </div>
+                        <input type="file" accept="application/pdf,image/*" className="hidden" ref={catalogInputRef} onChange={handleCatalogUpload} />
+                        {newCatalogFile && <p className="text-sm text-green-600 mt-2">✓ Arquivo carregado</p>}
+                      </div>
+                      <div className="flex gap-3 pt-2">
+                        <button 
+                          type="submit"
+                          className="bg-royal-700 text-white px-6 py-2 rounded-lg font-medium hover:bg-royal-800 transition-colors"
+                        >
+                          Salvar Catálogo
+                        </button>
+                        <button 
+                          type="button"
+                          onClick={() => setIsAddingCatalog(false)}
+                          className="bg-white text-slate-700 border border-slate-300 px-6 py-2 rounded-lg font-medium hover:bg-slate-50 transition-colors"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                )}
+
+                {catalogs.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {catalogs.map((catalog) => (
+                      <div key={catalog.id} className="flex items-center justify-between bg-white border border-slate-200 p-4 rounded-xl">
+                        <div className="flex items-center gap-3 overflow-hidden">
+                          <div className="w-10 h-10 bg-royal-50 text-royal-700 rounded-lg flex items-center justify-center shrink-0">
+                            {catalog.fileUrl?.includes('.pdf') ? <i className="text-xs font-bold">PDF</i> : <ImageIcon className="w-5 h-5" />}
+                          </div>
+                          <div>
+                            <h5 className="font-bold text-slate-800 truncate">{catalog.title}</h5>
+                            <a href={catalog.fileUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-royal-600 hover:underline">Ver arquivo</a>
+                          </div>
+                        </div>
+                        <button 
+                          onClick={() => handleDeleteCatalog(catalog.id)}
+                          className="text-slate-400 hover:text-red-500 p-2"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-slate-500 italic">Nenhum catálogo disponível para esta marca.</p>
                 )}
               </div>
 
