@@ -58,6 +58,14 @@ service cloud.firestore {
              data.createdAt is timestamp;
     }
 
+    function isValidCatalog(data) {
+      return data.keys().hasAll(['title', 'fileUrl', 'brandSlug', 'createdAt']) &&
+             data.title is string && data.title.size() > 0 && data.title.size() <= 200 &&
+             data.fileUrl is string && data.fileUrl.size() > 0 && data.fileUrl.size() <= 2048 &&
+             data.brandSlug is string && data.brandSlug.size() > 0 && data.brandSlug.size() <= 128 &&
+             data.createdAt is timestamp;
+    }
+
     match /messages/{messageId} {
       allow get, list, delete: if isAdmin();
       allow create: if isValidId(messageId) &&
@@ -101,6 +109,20 @@ service cloud.firestore {
                        isValidBlogPost(incoming()) &&
                        incoming().createdAt == existing().createdAt;
       allow delete: if isAdmin() && isValidId(postId);
+    }
+
+    match /catalogs/{catalogId} {
+      allow get: if isValidId(catalogId);
+      allow list: if true;
+      allow create: if isAdmin() &&
+                       isValidId(catalogId) &&
+                       isValidCatalog(incoming()) &&
+                       incoming().createdAt == request.time;
+      allow update: if isAdmin() &&
+                       isValidId(catalogId) &&
+                       isValidCatalog(incoming()) &&
+                       incoming().createdAt == existing().createdAt;
+      allow delete: if isAdmin() && isValidId(catalogId);
     }
   }
 }
