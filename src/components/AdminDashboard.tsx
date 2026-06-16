@@ -110,8 +110,9 @@ export default function AdminDashboard() {
       setNewCatalogFile('');
       setIsAddingCatalog(false);
     } catch (error) {
+      handleFirestoreError(error, OperationType.CREATE, 'catalogs');
       console.error("Erro ao adicionar catálogo", error);
-      alert("Erro ao adicionar catálogo.");
+      alert(`Erro ao adicionar catálogo. ${error}`);
     }
   };
 

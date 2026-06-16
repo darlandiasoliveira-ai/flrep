@@ -114,14 +114,8 @@ service cloud.firestore {
     match /catalogs/{catalogId} {
       allow get: if isValidId(catalogId);
       allow list: if true;
-      allow create: if isAdmin() &&
-                       isValidId(catalogId) &&
-                       isValidCatalog(incoming()) &&
-                       incoming().createdAt == request.time;
-      allow update: if isAdmin() &&
-                       isValidId(catalogId) &&
-                       isValidCatalog(incoming()) &&
-                       incoming().createdAt == existing().createdAt;
+      allow create: if isAdmin();
+      allow update: if isAdmin();
       allow delete: if isAdmin() && isValidId(catalogId);
     }
   }
