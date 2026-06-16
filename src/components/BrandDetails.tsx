@@ -100,19 +100,28 @@ export default function BrandDetails() {
                   href={catalog.fileUrl} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="group bg-white rounded-xl border border-slate-200 p-6 flex flex-col items-center text-center hover:border-royal-300 hover:shadow-md transition-all h-full"
+                  className="group bg-white rounded-xl border border-slate-200 overflow-hidden flex flex-col items-center text-center hover:border-royal-300 hover:shadow-md transition-all h-full"
                 >
-                  <div className="w-16 h-16 bg-royal-50 text-royal-700 rounded-full flex items-center justify-center mb-4 group-hover:bg-royal-100 group-hover:scale-110 transition-transform">
-                    {catalog.fileUrl?.includes('.pdf') ? (
-                      <span className="font-bold text-lg">PDF</span>
-                    ) : (
-                      <ImageIcon className="w-8 h-8" />
-                    )}
+                  {catalog.coverImageUrl ? (
+                    <div className="w-full h-40 bg-slate-100 overflow-hidden relative">
+                      <img src={catalog.coverImageUrl} alt={catalog.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+                    </div>
+                  ) : (
+                    <div className="w-16 h-16 bg-royal-50 text-royal-700 rounded-full flex items-center justify-center mt-6 mb-4 group-hover:bg-royal-100 group-hover:scale-110 transition-transform">
+                      {catalog.fileUrl?.includes('.pdf') ? (
+                        <span className="font-bold text-lg">PDF</span>
+                      ) : (
+                        <ImageIcon className="w-8 h-8" />
+                      )}
+                    </div>
+                  )}
+                  <div className="p-6 flex-1 flex flex-col items-center justify-center">
+                    <h3 className="font-bold text-slate-900 text-lg mb-2">{catalog.title}</h3>
+                    <span className="text-sm font-medium text-royal-600 group-hover:text-royal-800 flex items-center gap-1 mt-auto">
+                      Acessar Catálogo &rarr;
+                    </span>
                   </div>
-                  <h3 className="font-bold text-slate-900 text-lg mb-2">{catalog.title}</h3>
-                  <span className="text-sm font-medium text-royal-600 group-hover:text-royal-800 flex items-center gap-1 mt-auto">
-                    Acessar Catálogo &rarr;
-                  </span>
                 </a>
               ))}
             </div>

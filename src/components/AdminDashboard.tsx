@@ -51,10 +51,13 @@ export default function AdminDashboard() {
   const [newImage, setNewImage] = useState('');
   const [newCatalogTitle, setNewCatalogTitle] = useState('');
   const [newCatalogFile, setNewCatalogFile] = useState('');
+  const [newCatalogCover, setNewCatalogCover] = useState('');
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isUploadingCatalog, setIsUploadingCatalog] = useState(false);
+  const [isUploadingCatalogCover, setIsUploadingCatalogCover] = useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const catalogInputRef = React.useRef<HTMLInputElement>(null);
+  const catalogCoverInputRef = React.useRef<HTMLInputElement>(null);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -94,6 +97,25 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleCatalogCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingCatalogCover(true);
+    try {
+      const storageRef = ref(storage, `catalogs-covers/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`);
+      const snapshot = await uploadBytesResumable(storageRef, file);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      setNewCatalogCover(downloadURL);
+    } catch (error) {
+      console.error("Erro ao fazer upload da capa", error);
+      alert("Erro ao fazer upload. Verifique as permissões do Firebase.");
+    } finally {
+      setIsUploadingCatalogCover(false);
+      if (catalogCoverInputRef.current) catalogCoverInputRef.current.value = '';
+    }
+  };
+
   const handleAddCatalog = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCatalogTitle || !newCatalogFile) return;
@@ -103,11 +125,13 @@ export default function AdminDashboard() {
       await addDoc(collection(db, 'catalogs'), {
         title: newCatalogTitle,
         fileUrl: newCatalogFile,
+        coverImageUrl: newCatalogCover,
         brandSlug: currentBrandSlug,
         createdAt: serverTimestamp()
       });
       setNewCatalogTitle('');
       setNewCatalogFile('');
+      setNewCatalogCover('');
       setIsAddingCatalog(false);
     } catch (error) {
       handleFirestoreError(error, OperationType.CREATE, 'catalogs');
@@ -664,6 +688,33 @@ export default function AdminDashboard() {
                         <input type="file" accept="application/pdf,image/*" className="hidden" ref={catalogInputRef} onChange={handleCatalogUpload} />
                         {newCatalogFile && <p className="text-sm text-green-600 mt-2">✓ Arquivo carregado</p>}
                       </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Foto de Capa do Catálogo (Opcional)</label>
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => catalogCoverInputRef.current?.click()}
+                            disabled={isUploadingCatalogCover}
+                            className="px-4 py-2 bg-slate-100 text-slate-700 border border-slate-300 rounded-lg hover:bg-slate-200 flex-shrink-0 disabled:opacity-50"
+                          >
+                            {isUploadingCatalogCover ? 'Enviando...' : 'Fazer Upload de Foto'}
+                          </button>
+                          <input 
+                            type="url" 
+                            value={newCatalogCover}
+                            onChange={(e) => setNewCatalogCover(e.target.value)}
+                            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-royal-500 focus:border-royal-500"
+                            placeholder="URL da imagem (opcional)"
+                          />
+                        </div>
+                        <input type="file" accept="image/*" className="hidden" ref={catalogCoverInputRef} onChange={handleCatalogCoverUpload} />
+                        {newCatalogCover && (
+                          <div className="mt-2">
+                             <img src={newCatalogCover} alt="Capa" className="h-16 w-auto object-cover rounded shadow" />
+                             <p className="text-sm text-green-600 mt-1">✓ Capa carregada</p>
+                          </div>
+                        )}
+                      </div>
                       <div className="flex gap-3 pt-2">
                         <button 
                           type="submit"
@@ -688,9 +739,13 @@ export default function AdminDashboard() {
                     {catalogs.map((catalog) => (
                       <div key={catalog.id} className="flex items-center justify-between bg-white border border-slate-200 p-4 rounded-xl">
                         <div className="flex items-center gap-3 overflow-hidden">
-                          <div className="w-10 h-10 bg-royal-50 text-royal-700 rounded-lg flex items-center justify-center shrink-0">
-                            {catalog.fileUrl?.includes('.pdf') ? <i className="text-xs font-bold">PDF</i> : <ImageIcon className="w-5 h-5" />}
-                          </div>
+                          {catalog.coverImageUrl ? (
+                            <img src={catalog.coverImageUrl} alt="Capa" className="w-10 h-10 object-cover rounded-lg shrink-0" />
+                          ) : (
+                            <div className="w-10 h-10 bg-royal-50 text-royal-700 rounded-lg flex items-center justify-center shrink-0">
+                              {catalog.fileUrl?.includes('.pdf') ? <i className="text-xs font-bold">PDF</i> : <ImageIcon className="w-5 h-5" />}
+                            </div>
+                          )}
                           <div>
                             <h5 className="font-bold text-slate-800 truncate">{catalog.title}</h5>
                             <a href={catalog.fileUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-royal-600 hover:underline">Ver arquivo</a>
