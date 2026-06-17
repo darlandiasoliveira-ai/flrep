@@ -81,9 +81,13 @@ export default function BrandDetails() {
           </div>
           <div>
             <h1 className="text-3xl md:text-5xl font-bold text-slate-900 mb-4">{brand.name}</h1>
-            <p className="text-lg text-slate-600 max-w-2xl">
+            <p className="text-lg text-slate-600 max-w-2xl mb-4">
               Nesta página você pode visualizar o catálogo de produtos e os lançamentos da marca {brand.name}. {products.length === 0 && 'Em breve, as fotos dos produtos estarão disponíveis abaixo.'}
             </p>
+            <div className="inline-flex items-center gap-2 bg-royal-50 text-royal-700 px-4 py-2 rounded-full font-medium text-sm">
+              <span className="w-2 h-2 rounded-full bg-royal-600"></span>
+              Atuação: {brand.regions}
+            </div>
           </div>
         </div>
 

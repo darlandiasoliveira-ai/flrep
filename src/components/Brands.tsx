@@ -21,9 +21,9 @@ export default function Brands() {
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
-              className="bg-white border-r border-b border-slate-100 hover:bg-slate-50 transition-colors flex flex-col items-center justify-center p-8 text-center group cursor-pointer aspect-square"
+              className="bg-white border-r border-b border-slate-100 hover:bg-slate-50 transition-colors flex flex-col items-center justify-center p-8 text-center group cursor-pointer"
             >
-              <div className="w-24 h-24 p-2 bg-white rounded-lg shadow-sm border border-slate-100 group-hover:scale-110 transition-all duration-300 flex items-center justify-center">
+              <div className="w-24 h-24 p-2 mb-4 bg-white rounded-lg shadow-sm border border-slate-100 group-hover:scale-110 transition-all duration-300 flex items-center justify-center">
                 <img 
                   src={brand.logo} 
                   alt={`Logo ${brand.name}`} 
@@ -34,6 +34,8 @@ export default function Brands() {
                   }}
                 />
               </div>
+              <h4 className="text-sm font-bold text-slate-800 hidden sm:block">{brand.name}</h4>
+              <p className="text-xs text-slate-500 mt-1">{brand.regions}</p>
             </motion.div>
           ))}
         </div>

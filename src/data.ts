@@ -12,40 +12,72 @@ export const brands = [
     id: 1, 
     slug: 'moval',
     name: 'Moval', 
-    specialty: 'A marca do móvel', 
+    specialty: 'Dormitórios', 
     logo: '/logo-moval.png',
+    regions: 'Sergipe e Alagoas',
     products: [] 
   },
   { 
     id: 2, 
-    slug: 'bm-tubulares',
-    name: 'BM Tubulares', 
+    slug: 'bm',
+    name: 'BM', 
     specialty: 'Móveis tubulares', 
     logo: '/logo-bm.png',
+    regions: 'Sergipe e Alagoas',
     products: [] 
   },
   { 
     id: 3, 
-    slug: 'bertolini',
-    name: 'Bertolini', 
-    specialty: 'Móveis de Aço', 
-    logo: '/logo-bertolini.png',
-    products: [] 
-  },
-  { 
-    id: 4, 
-    slug: 'rimo',
-    name: 'Rimo', 
-    specialty: 'Seu sonho, sua casa', 
-    logo: '/logo-rimo.png',
-    products: [] 
-  },
-  { 
-    id: 5, 
     slug: 'houston',
     name: 'Houston', 
     specialty: 'Bicicletas', 
     logo: '/logo-houston.png',
+    regions: 'Sergipe e Alagoas',
+    products: [] 
+  },
+  { 
+    id: 4, 
+    slug: 'philco',
+    name: 'Philco', 
+    specialty: 'Eletrodomésticos', 
+    logo: '/logo-philco.png',
+    regions: 'Sergipe e Alagoas',
+    products: [] 
+  },
+  { 
+    id: 5, 
+    slug: 'britania',
+    name: 'Britânia', 
+    specialty: 'Eletroportáteis', 
+    logo: '/logo-britania.jpg',
+    regions: 'Sergipe e Alagoas',
+    products: [] 
+  },
+  { 
+    id: 6, 
+    slug: 'kits-parana',
+    name: 'Kits Paraná', 
+    specialty: 'Cozinhas', 
+    logo: '/logo-kits-parana.jpg',
+    regions: 'Somente Alagoas',
+    products: [] 
+  },
+  { 
+    id: 7, 
+    slug: 'rimo',
+    name: 'Rimo', 
+    specialty: 'Dormitórios em MDF', 
+    logo: '/logo-rimo.png',
+    regions: 'Somente Alagoas',
+    products: [] 
+  },
+  { 
+    id: 8, 
+    slug: 'kappesberg',
+    name: 'Kappesberg', 
+    specialty: 'Sala de Estar', 
+    logo: '/logo-kappesberg.png',
+    regions: 'Somente Alagoas',
     products: [] 
   }
 ];

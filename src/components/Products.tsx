@@ -4,7 +4,7 @@ import * as motion from 'motion/react-client';
 import { Link } from 'react-router-dom';
 import { db } from '../lib/firebase';
 import { collection, onSnapshot } from 'firebase/firestore';
-import { Image as ImageIcon } from 'lucide-react';
+import { Image as ImageIcon, MapPin } from 'lucide-react';
 
 export default function Products() {
   const [catalogs, setCatalogs] = useState<any[]>([]);
@@ -51,7 +51,7 @@ export default function Products() {
                 transition={{ delay: index * 0.1 }}
                 className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-royal-100 transition-all group flex flex-col h-full"
               >
-                <div className="w-24 h-24 mb-6 p-4 bg-white rounded-lg shadow-sm border border-slate-100 group-hover:scale-105 transition-all duration-300 flex items-center justify-center">
+                <div className="w-24 h-24 mb-4 p-4 bg-white rounded-lg shadow-sm border border-slate-100 group-hover:scale-105 transition-all duration-300 flex items-center justify-center">
                   <img 
                     src={brand.logo} 
                     alt={`Logo ${brand.name}`} 
@@ -61,10 +61,16 @@ export default function Products() {
                     }}
                   />
                 </div>
-                <h4 className="text-xl font-bold text-slate-900 mb-3">{brand.name}</h4>
-                <p className="text-slate-600 text-sm leading-relaxed mb-8 flex-grow">
-                  Especialidade: {brand.specialty}
-                </p>
+                <div className="mb-4">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium bg-slate-100 text-slate-600 border border-slate-200">
+                    <MapPin className="w-3.5 h-3.5" />
+                    {brand.regions}
+                  </span>
+                </div>
+                <h4 className="text-xl font-bold text-slate-900 mb-2">{brand.name}</h4>
+                <div className="text-slate-600 text-sm leading-relaxed mb-6 flex-grow">
+                  <span className="font-semibold text-slate-700">Especialidade:</span> {brand.specialty}
+                </div>
                 <Link to={`/marcas/${brand.slug}`} className="inline-flex items-center text-royal-700 font-bold text-sm group-hover:text-royal-600 mt-auto w-max">
                   Ver marca e produtos
                   <svg className="w-4 h-4 ml-1.5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
