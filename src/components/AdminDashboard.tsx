@@ -49,6 +49,7 @@ export default function AdminDashboard() {
   const [isAdding, setIsAdding] = useState(false);
   const [isAddingCatalog, setIsAddingCatalog] = useState(false);
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
+  const [editingHighlightId, setEditingHighlightId] = useState<string | null>(null);
   const [newTitle, setNewTitle] = useState('');
   const [newImage, setNewImage] = useState('');
   const [newLinkUrl, setNewLinkUrl] = useState('');
@@ -251,19 +252,28 @@ export default function AdminDashboard() {
     if (!newImage) return;
 
     try {
-      await addDoc(collection(db, 'highlights'), {
-        title: newTitle || '',
-        imageUrl: newImage,
-        linkUrl: newLinkUrl || '',
-        createdAt: serverTimestamp()
-      });
+      if (editingHighlightId) {
+        await updateDoc(doc(db, 'highlights', editingHighlightId), {
+          title: newTitle || '',
+          imageUrl: newImage,
+          linkUrl: newLinkUrl || '',
+        });
+      } else {
+        await addDoc(collection(db, 'highlights'), {
+          title: newTitle || '',
+          imageUrl: newImage,
+          linkUrl: newLinkUrl || '',
+          createdAt: serverTimestamp()
+        });
+      }
       setNewTitle('');
       setNewImage('');
       setNewLinkUrl('');
       setIsAdding(false);
+      setEditingHighlightId(null);
     } catch (error) {
       console.error(error);
-      alert('Erro ao adicionar destaque.');
+      alert(editingHighlightId ? 'Erro ao atualizar destaque.' : 'Erro ao adicionar destaque.');
     }
   };
 
@@ -493,7 +503,7 @@ export default function AdminDashboard() {
                   <h3 className="font-bold text-slate-900">Banners do Carrossel ({highlights.length})</h3>
                   {!isAdding && (
                     <button 
-                      onClick={() => { setIsAdding(true); setNewTitle(''); setNewImage(''); setNewLinkUrl(''); }}
+                      onClick={() => { setIsAdding(true); setNewTitle(''); setNewImage(''); setNewLinkUrl(''); setEditingHighlightId(null); }}
                       className="text-sm font-medium text-royal-700 hover:text-royal-800 flex items-center gap-1"
                     >
                       <Upload className="w-4 h-4" /> Adicionar Banner
@@ -503,7 +513,7 @@ export default function AdminDashboard() {
 
                 {isAdding && (
                   <form onSubmit={handleAddHighlight} className="bg-slate-50 p-6 rounded-xl border border-slate-200 mb-6">
-                    <h4 className="font-bold text-slate-900 mb-4">Novo Banner</h4>
+                    <h4 className="font-bold text-slate-900 mb-4">{editingHighlightId ? 'Editar Banner' : 'Novo Banner'}</h4>
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">Título / Descrição (Opcional)</label>
@@ -551,7 +561,7 @@ export default function AdminDashboard() {
                         <button type="submit" className="bg-royal-700 text-white px-6 py-2 rounded-lg font-medium hover:bg-royal-800 transition-colors">
                           Salvar Banner
                         </button>
-                        <button type="button" onClick={() => setIsAdding(false)} className="bg-white text-slate-700 border border-slate-300 px-6 py-2 rounded-lg font-medium hover:bg-slate-50 transition-colors">
+                        <button type="button" onClick={() => { setIsAdding(false); setEditingHighlightId(null); }} className="bg-white text-slate-700 border border-slate-300 px-6 py-2 rounded-lg font-medium hover:bg-slate-50 transition-colors">
                           Cancelar
                         </button>
                       </div>
@@ -568,12 +578,26 @@ export default function AdminDashboard() {
                         </div>
                         <div className="p-3 flex justify-between items-center">
                           <div className="truncate text-sm font-medium">{item.title || 'Sem título'}</div>
-                          <button 
-                            onClick={() => handleDeleteHighlight(item.id)}
-                            className="text-red-500 hover:text-red-700 p-1"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          <div className="flex gap-2">
+                            <button 
+                              onClick={() => {
+                                setEditingHighlightId(item.id);
+                                setNewTitle(item.title || '');
+                                setNewImage(item.imageUrl || '');
+                                setNewLinkUrl(item.linkUrl || '');
+                                setIsAdding(true);
+                              }}
+                              className="text-slate-500 hover:text-royal-700 p-1"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                            <button 
+                              onClick={() => handleDeleteHighlight(item.id)}
+                              className="text-red-500 hover:text-red-700 p-1"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}

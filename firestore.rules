@@ -118,5 +118,21 @@ service cloud.firestore {
       allow update: if isAdmin();
       allow delete: if isAdmin() && isValidId(catalogId);
     }
+
+    match /highlights/{highlightId} {
+      allow get: if isValidId(highlightId);
+      allow list: if true;
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin() && isValidId(highlightId);
+    }
+
+    match /featuredProducts/{productId} {
+      allow get: if isValidId(productId);
+      allow list: if true;
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin() && isValidId(productId);
+    }
   }
 }
