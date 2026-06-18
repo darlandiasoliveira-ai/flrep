@@ -271,9 +271,9 @@ export default function AdminDashboard() {
       setNewLinkUrl('');
       setIsAdding(false);
       setEditingHighlightId(null);
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      alert(editingHighlightId ? 'Erro ao atualizar destaque.' : 'Erro ao adicionar destaque.');
+      alert((editingHighlightId ? 'Erro ao atualizar destaque: ' : 'Erro ao adicionar destaque: ') + (error.message || error));
     }
   };
 
@@ -292,9 +292,9 @@ export default function AdminDashboard() {
       setNewImage('');
       setNewLinkUrl('');
       setIsAddingCatalog(false); // using this state to toggle the second section form
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      alert('Erro ao adicionar produto em destaque.');
+      alert('Erro ao adicionar produto em destaque: ' + (error.message || error));
     }
   };
 
