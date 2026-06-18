@@ -7,6 +7,7 @@ import React, { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import Hero from './components/Hero';
+import HomeHighlights from './components/HomeHighlights';
 import About from './components/About';
 import Products from './components/Products';
 import Brands from './components/Brands';
@@ -42,6 +43,7 @@ function Home() {
   return (
     <>
       <Hero />
+      <HomeHighlights />
       <Brands />
       <Contact />
     </>

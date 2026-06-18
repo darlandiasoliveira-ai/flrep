@@ -44,11 +44,14 @@ export default function AdminDashboard() {
   const [products, setProducts] = useState<any[]>([]);
   const [catalogs, setCatalogs] = useState<any[]>([]);
   const [blogPosts, setBlogPosts] = useState<any[]>([]);
+  const [highlights, setHighlights] = useState<any[]>([]);
+  const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
   const [isAdding, setIsAdding] = useState(false);
   const [isAddingCatalog, setIsAddingCatalog] = useState(false);
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
   const [newTitle, setNewTitle] = useState('');
   const [newImage, setNewImage] = useState('');
+  const [newLinkUrl, setNewLinkUrl] = useState('');
   const [newCatalogTitle, setNewCatalogTitle] = useState('');
   const [newCatalogFile, setNewCatalogFile] = useState('');
   const [newCatalogCover, setNewCatalogCover] = useState('');
@@ -216,12 +219,83 @@ export default function AdminDashboard() {
       });
 
       return () => unsubscribe();
+    } else if (activeTab === 'home_highlights') {
+      const qHighlights = query(collection(db, 'highlights'));
+      const unsubHighlight = onSnapshot(qHighlights, (snapshot) => {
+        const items: any[] = [];
+        snapshot.forEach((docSnap) => items.push({ id: docSnap.id, ...docSnap.data() }));
+        setHighlights(items);
+      });
+
+      const qFeatured = query(collection(db, 'featuredProducts'));
+      const unsubFeatured = onSnapshot(qFeatured, (snapshot) => {
+        const items: any[] = [];
+        snapshot.forEach((docSnap) => items.push({ id: docSnap.id, ...docSnap.data() }));
+        setFeaturedProducts(items);
+      });
+
+      return () => {
+        unsubHighlight();
+        unsubFeatured();
+      };
     }
   }, [activeTab, isLoading]);
 
   const handleLogout = async () => {
     await signOut(auth);
     navigate('/admin/login');
+  };
+
+  const handleAddHighlight = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newImage) return;
+
+    try {
+      await addDoc(collection(db, 'highlights'), {
+        title: newTitle || '',
+        imageUrl: newImage,
+        linkUrl: newLinkUrl || '',
+        createdAt: serverTimestamp()
+      });
+      setNewTitle('');
+      setNewImage('');
+      setNewLinkUrl('');
+      setIsAdding(false);
+    } catch (error) {
+      console.error(error);
+      alert('Erro ao adicionar destaque.');
+    }
+  };
+
+  const handleAddFeaturedProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newImage || !newTitle) return;
+
+    try {
+      await addDoc(collection(db, 'featuredProducts'), {
+        title: newTitle,
+        imageUrl: newImage,
+        linkUrl: newLinkUrl || '',
+        createdAt: serverTimestamp()
+      });
+      setNewTitle('');
+      setNewImage('');
+      setNewLinkUrl('');
+      setIsAddingCatalog(false); // using this state to toggle the second section form
+    } catch (error) {
+      console.error(error);
+      alert('Erro ao adicionar produto em destaque.');
+    }
+  };
+
+  const handleDeleteHighlight = async (id: string) => {
+    if (!window.confirm('Tem certeza?')) return;
+    try { await deleteDoc(doc(db, 'highlights', id)); } catch(e) {}
+  };
+
+  const handleDeleteFeaturedProduct = async (id: string) => {
+    if (!window.confirm('Tem certeza?')) return;
+    try { await deleteDoc(doc(db, 'featuredProducts', id)); } catch(e) {}
   };
 
   const handleAddProduct = async (e: React.FormEvent) => {
@@ -353,6 +427,17 @@ export default function AdminDashboard() {
         
         <div className="space-y-1 flex-1">
           <button
+            onClick={() => setActiveTab('home_highlights')}
+            className={`w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-colors mb-4 ${
+              activeTab === 'home_highlights' 
+                ? 'bg-royal-50 text-royal-700 border border-royal-100' 
+                : 'text-slate-600 hover:bg-slate-50'
+            }`}
+          >
+            Página Inicial (Destaques)
+          </button>
+          
+          <button
             onClick={() => setActiveTab('blog')}
             className={`w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-colors mb-4 ${
               activeTab === 'blog' 
@@ -390,7 +475,229 @@ export default function AdminDashboard() {
       {/* Main Content */}
       <div className="flex-1 p-6 md:p-12">
         <div className="max-w-4xl mx-auto">
-          {activeTab === 'blog' ? (
+          {activeTab === 'home_highlights' ? (
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+              <div className="flex items-center gap-4 mb-8 pb-6 border-b border-slate-100">
+                <div className="w-16 h-16 bg-slate-50 border border-slate-100 rounded-lg p-2 flex items-center justify-center">
+                  <ImageIcon className="w-8 h-8 text-royal-700" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-slate-900">Destaques da Página Inicial</h1>
+                  <p className="text-slate-500 text-sm">Gerencie o Carrossel (Novidades) e os Principais Produtos</p>
+                </div>
+              </div>
+
+              {/* BANNERS / CARROSSEL */}
+              <div className="mb-12">
+                <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
+                  <h3 className="font-bold text-slate-900">Banners do Carrossel ({highlights.length})</h3>
+                  {!isAdding && (
+                    <button 
+                      onClick={() => { setIsAdding(true); setNewTitle(''); setNewImage(''); setNewLinkUrl(''); }}
+                      className="text-sm font-medium text-royal-700 hover:text-royal-800 flex items-center gap-1"
+                    >
+                      <Upload className="w-4 h-4" /> Adicionar Banner
+                    </button>
+                  )}
+                </div>
+
+                {isAdding && (
+                  <form onSubmit={handleAddHighlight} className="bg-slate-50 p-6 rounded-xl border border-slate-200 mb-6">
+                    <h4 className="font-bold text-slate-900 mb-4">Novo Banner</h4>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Título / Descrição (Opcional)</label>
+                        <input 
+                          type="text" 
+                          value={newTitle}
+                          onChange={(e) => setNewTitle(e.target.value)}
+                          className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-royal-500 focus:border-royal-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Link de Destino ao clicar (Opcional)</label>
+                        <input 
+                          type="text" 
+                          value={newLinkUrl}
+                          onChange={(e) => setNewLinkUrl(e.target.value)}
+                          placeholder="/marcas/moval ou https://google.com"
+                          className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-royal-500 focus:border-royal-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Imagem do Banner</label>
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={isUploadingImage}
+                            className="px-4 py-2 bg-slate-100 text-slate-700 border border-slate-300 rounded-lg hover:bg-slate-200 flex-shrink-0 disabled:opacity-50"
+                          >
+                            {isUploadingImage ? 'Enviando...' : 'Fazer Upload'}
+                          </button>
+                          <input 
+                            type="url" 
+                            required
+                            value={newImage}
+                            onChange={(e) => setNewImage(e.target.value)}
+                            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-royal-500 focus:border-royal-500"
+                            placeholder="Ou cole a URL da imagem aqui"
+                          />
+                        </div>
+                        {newImage && <img src={newImage} alt="Preview" className="mt-2 h-32 object-cover rounded-lg border border-slate-200" />}
+                        <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleImageUpload} />
+                      </div>
+                      <div className="flex gap-3 pt-2">
+                        <button type="submit" className="bg-royal-700 text-white px-6 py-2 rounded-lg font-medium hover:bg-royal-800 transition-colors">
+                          Salvar Banner
+                        </button>
+                        <button type="button" onClick={() => setIsAdding(false)} className="bg-white text-slate-700 border border-slate-300 px-6 py-2 rounded-lg font-medium hover:bg-slate-50 transition-colors">
+                          Cancelar
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                )}
+
+                {highlights.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {highlights.map((item) => (
+                      <div key={item.id} className="bg-white border rounded-xl overflow-hidden group">
+                        <div className="h-32 bg-slate-100 overflow-hidden relative">
+                          <img src={item.imageUrl} alt="Banner" className="w-full h-full object-cover" />
+                        </div>
+                        <div className="p-3 flex justify-between items-center">
+                          <div className="truncate text-sm font-medium">{item.title || 'Sem título'}</div>
+                          <button 
+                            onClick={() => handleDeleteHighlight(item.id)}
+                            className="text-red-500 hover:text-red-700 p-1"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 bg-slate-50 rounded-xl border border-dashed border-slate-300">
+                    <p className="text-slate-500 text-sm">Nenhum banner cadastrado.</p>
+                  </div>
+                )}
+              </div>
+
+              {/* PRODUTOS EM DESTAQUE */}
+              <div>
+                <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
+                  <h3 className="font-bold text-slate-900">Principais Produtos ({featuredProducts.length})</h3>
+                  {!isAddingCatalog && (
+                    <button 
+                      onClick={() => { setIsAddingCatalog(true); setNewTitle(''); setNewImage(''); setNewLinkUrl(''); }}
+                      className="text-sm font-medium text-royal-700 hover:text-royal-800 flex items-center gap-1"
+                    >
+                      <Upload className="w-4 h-4" /> Adicionar Produto
+                    </button>
+                  )}
+                </div>
+
+                {isAddingCatalog && (
+                  <form onSubmit={handleAddFeaturedProduct} className="bg-slate-50 p-6 rounded-xl border border-slate-200 mb-6">
+                    <h4 className="font-bold text-slate-900 mb-4">Novo Produto em Destaque</h4>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Título do Produto</label>
+                        <input 
+                          type="text" 
+                          required
+                          value={newTitle}
+                          onChange={(e) => setNewTitle(e.target.value)}
+                          className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-royal-500 focus:border-royal-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Link de Destino ao clicar (Opcional)</label>
+                        <input 
+                          type="text" 
+                          value={newLinkUrl}
+                          onChange={(e) => setNewLinkUrl(e.target.value)}
+                          placeholder="/marcas/moval"
+                          className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-royal-500 focus:border-royal-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Imagem do Produto</label>
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => catalogCoverInputRef.current?.click()}
+                            disabled={isUploadingCatalogCover}
+                            className="px-4 py-2 bg-slate-100 text-slate-700 border border-slate-300 rounded-lg hover:bg-slate-200 flex-shrink-0 disabled:opacity-50"
+                          >
+                            {isUploadingCatalogCover ? 'Enviando...' : 'Fazer Upload'}
+                          </button>
+                          <input 
+                            type="url" 
+                            required
+                            value={newImage}
+                            onChange={(e) => setNewImage(e.target.value)}
+                            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-royal-500 focus:border-royal-500"
+                            placeholder="Ou cole a URL da imagem aqui"
+                          />
+                        </div>
+                        {newImage && <img src={newImage} alt="Preview" className="mt-2 h-24 object-cover rounded-lg border border-slate-200" />}
+                        <input type="file" accept="image/*" className="hidden" ref={catalogCoverInputRef} onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          setIsUploadingCatalogCover(true);
+                          const storageRef = ref(storage, `uploads/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`);
+                          uploadBytesResumable(storageRef, file).then(snapshot => {
+                            getDownloadURL(snapshot.ref).then(url => {
+                              setNewImage(url);
+                              setIsUploadingCatalogCover(false);
+                            });
+                          }).catch(() => setIsUploadingCatalogCover(false));
+                        }} />
+                      </div>
+                      <div className="flex gap-3 pt-2">
+                        <button type="submit" className="bg-royal-700 text-white px-6 py-2 rounded-lg font-medium hover:bg-royal-800 transition-colors">
+                          Salvar Produto
+                        </button>
+                        <button type="button" onClick={() => setIsAddingCatalog(false)} className="bg-white text-slate-700 border border-slate-300 px-6 py-2 rounded-lg font-medium hover:bg-slate-50 transition-colors">
+                          Cancelar
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                )}
+
+                {featuredProducts.length > 0 ? (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {featuredProducts.map((item) => (
+                      <div key={item.id} className="bg-white border rounded-xl overflow-hidden group text-center">
+                        <div className="aspect-square bg-slate-100 overflow-hidden relative">
+                          <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
+                           <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button 
+                              onClick={() => handleDeleteFeaturedProduct(item.id)}
+                              className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors mb-2"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                        <div className="p-3">
+                          <h4 className="text-sm font-bold text-slate-800">{item.title}</h4>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 bg-slate-50 rounded-xl border border-dashed border-slate-300">
+                    <p className="text-slate-500 text-sm">Nenhum produto destacado.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : activeTab === 'blog' ? (
              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
               <div className="flex items-center gap-4 mb-8 pb-6 border-b border-slate-100">
                 <div className="w-16 h-16 bg-slate-50 border border-slate-100 rounded-lg p-2 flex items-center justify-center">

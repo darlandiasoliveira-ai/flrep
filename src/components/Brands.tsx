@@ -21,21 +21,23 @@ export default function Brands() {
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
-              className="bg-white border-r border-b border-slate-100 hover:bg-slate-50 transition-colors flex flex-col items-center justify-center p-8 text-center group cursor-pointer"
+              className="bg-white border-r border-b border-slate-100 hover:bg-slate-50 transition-colors flex flex-col items-center justify-center p-8 text-center"
             >
-              <div className="w-24 h-24 p-2 mb-4 bg-white rounded-lg shadow-sm border border-slate-100 group-hover:scale-110 transition-all duration-300 flex items-center justify-center">
-                <img 
-                  src={brand.logo} 
-                  alt={`Logo ${brand.name}`} 
-                  className="max-w-full max-h-full object-contain"
-                  onError={(e) => {
-                    // Fallback se a imagem não existir
-                    (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2YxZjVmOSIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5NGExYjIiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIj5Mb2dvPC90ZXh0Pjwvc3ZnPg==';
-                  }}
-                />
-              </div>
-              <h4 className="text-sm font-bold text-slate-800 hidden sm:block">{brand.name}</h4>
-              <p className="text-xs text-slate-500 mt-1">{brand.regions}</p>
+              <Link to={`/marcas/${brand.slug}`} className="w-full h-full flex flex-col items-center justify-center group cursor-pointer block">
+                <div className="w-24 h-24 p-2 mb-4 bg-white rounded-lg shadow-sm border border-slate-100 group-hover:scale-110 transition-all duration-300 flex items-center justify-center">
+                  <img 
+                    src={brand.logo} 
+                    alt={`Logo ${brand.name}`} 
+                    className="max-w-full max-h-full object-contain"
+                    onError={(e) => {
+                      // Fallback se a imagem não existir
+                      (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2YxZjVmOSIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5NGExYjIiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIj5Mb2dvPC90ZXh0Pjwvc3ZnPg==';
+                    }}
+                  />
+                </div>
+                <h4 className="text-sm font-bold text-slate-800 hidden sm:block">{brand.name}</h4>
+                <p className="text-xs text-slate-500 mt-1">{brand.regions}</p>
+              </Link>
             </motion.div>
           ))}
         </div>
