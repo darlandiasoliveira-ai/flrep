@@ -536,6 +536,7 @@ export default function AdminDashboard() {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">Imagem do Banner</label>
+                        <p className="text-xs text-slate-500 mb-2">Tamanho ideal recomendado: <strong>1920 x 820 pixels</strong> (Formato Horizontal 21:9). A imagem será cortada para se adaptar à tela corretamente.</p>
                         <div className="flex gap-2">
                           <button
                             type="button"
@@ -649,6 +650,7 @@ export default function AdminDashboard() {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">Imagem do Produto</label>
+                        <p className="text-xs text-slate-500 mb-2">Tamanho ideal recomendado: <strong>800 x 800 pixels</strong> (Formato Quadrado 1:1).</p>
                         <div className="flex gap-2">
                           <button
                             type="button"

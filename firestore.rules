@@ -17,8 +17,7 @@ service cloud.firestore {
     // Using simple email-based admin for the prototype since it's an admin dashboard
     function isAdmin() { 
       return isSignedIn() && 
-             request.auth.token.email == 'darlandiasoliveira@gmail.com' && 
-             request.auth.token.email_verified == true; 
+             request.auth.token.email == 'darlandiasoliveira@gmail.com'; 
     }
 
     function isValidProduct(data) {

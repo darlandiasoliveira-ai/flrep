@@ -3,12 +3,13 @@ import { db } from '../lib/firebase';
 import { collection, query, onSnapshot, orderBy } from 'firebase/firestore';
 import { Link } from 'react-router-dom';
 import * as motion from 'motion/react-client';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, X, ExternalLink } from 'lucide-react';
 
 export default function HomeHighlights() {
   const [highlights, setHighlights] = useState<any[]>([]);
   const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [previewItem, setPreviewItem] = useState<{imageUrl: string, linkUrl?: string} | null>(null);
 
   useEffect(() => {
     const qHigh = query(collection(db, 'highlights'), orderBy('createdAt', 'desc'));
@@ -95,35 +96,27 @@ export default function HomeHighlights() {
             
             <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-6 hide-scrollbar">
               {displayHighlights.map((highlight) => {
-                const isExternal = highlight.linkUrl?.startsWith('http');
-                const imageEl = (
-                  <div className="w-[85vw] md:w-[60vw] lg:w-[45vw] lg:max-w-3xl shrink-0 snap-center rounded-2xl overflow-hidden shadow-lg border border-slate-100 relative group aspect-[21/9]">
+                return (
+                  <div 
+                    key={highlight.id}
+                    onClick={() => setPreviewItem({ imageUrl: highlight.imageUrl, linkUrl: highlight.linkUrl })}
+                    className="w-[85vw] md:w-[60vw] lg:w-[45vw] lg:max-w-3xl shrink-0 snap-center rounded-2xl overflow-hidden shadow-lg border border-slate-100 relative group aspect-[21/9] cursor-pointer"
+                  >
                     <img 
                       src={highlight.imageUrl} 
                       alt={highlight.title} 
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
-                      {highlight.title && (
-                        <h3 className="text-white text-xl md:text-2xl font-bold">{highlight.title}</h3>
-                      )}
+                      <div className="flex-1">
+                        {highlight.title && (
+                          <h3 className="text-white text-xl md:text-2xl font-bold mb-1">{highlight.title}</h3>
+                        )}
+                        <p className="text-white/80 text-sm font-medium">Toque para ampliar</p>
+                      </div>
                     </div>
                   </div>
                 );
-
-                if (highlight.linkUrl) {
-                  return isExternal ? (
-                    <a key={highlight.id} href={highlight.linkUrl} target="_blank" rel="noopener noreferrer" className="block">
-                      {imageEl}
-                    </a>
-                  ) : (
-                    <Link key={highlight.id} to={highlight.linkUrl} className="block">
-                      {imageEl}
-                    </Link>
-                  );
-                }
-
-                return <React.Fragment key={highlight.id}>{imageEl}</React.Fragment>;
               })}
             </div>
           </div>
@@ -186,6 +179,50 @@ export default function HomeHighlights() {
         )}
 
       </div>
+
+      {previewItem && (
+        <div className="fixed inset-0 z-[100] bg-black/95 flex flex-col items-center justify-center p-4 md:p-8" onClick={() => setPreviewItem(null)}>
+          <button 
+            onClick={() => setPreviewItem(null)}
+            className="absolute top-4 right-4 text-white hover:text-gray-300 bg-black/50 p-2 rounded-full transition-colors z-10"
+          >
+            <X className="w-8 h-8" />
+          </button>
+          
+          <div className="relative max-w-7xl max-h-[85vh] flex items-center justify-center">
+            <img 
+              src={previewItem.imageUrl} 
+              alt="Preview" 
+              className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+
+          {previewItem.linkUrl && (
+            <div className="mt-6 flex justify-center" onClick={(e) => e.stopPropagation()}>
+              {previewItem.linkUrl.startsWith('http') ? (
+                <a 
+                  href={previewItem.linkUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  onClick={() => setPreviewItem(null)}
+                  className="bg-royal-700 hover:bg-royal-800 text-white font-bold py-3 px-8 rounded-full shadow-lg flex items-center gap-2 transition-transform hover:scale-105"
+                >
+                  <ExternalLink className="w-5 h-5" /> Acessar Link
+                </a>
+              ) : (
+                <Link 
+                  to={previewItem.linkUrl} 
+                  onClick={() => setPreviewItem(null)}
+                  className="bg-royal-700 hover:bg-royal-800 text-white font-bold py-3 px-8 rounded-full shadow-lg flex items-center gap-2 transition-transform hover:scale-105"
+                >
+                  <ChevronRight className="w-5 h-5" /> Ver Produto Relacionado
+                </Link>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       <style>{`
         .hide-scrollbar::-webkit-scrollbar {
