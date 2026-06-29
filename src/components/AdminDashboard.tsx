@@ -972,19 +972,27 @@ export default function AdminDashboard() {
                           >
                             {isUploadingMultiImages ? 'Enviando...' : 'Fazer Upload (Múltiplas)'}
                           </button>
-                          <input 
-                            type="url" 
-                            value={newImage}
-                            onChange={(e) => {
-                                setNewImage(e.target.value);
-                                if (e.target.value) {
-                                  setNewProductImages(prev => [...prev, e.target.value]);
-                                  setNewImage(''); // clear input after adding
+                          <div className="flex w-full gap-2">
+                            <input 
+                              type="url" 
+                              value={newImage}
+                              onChange={(e) => setNewImage(e.target.value)}
+                              className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-royal-500 focus:border-royal-500"
+                              placeholder="Ou cole a URL da imagem aqui"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (newImage) {
+                                  setNewProductImages(prev => [...prev, newImage]);
+                                  setNewImage('');
                                 }
-                            }}
-                            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-royal-500 focus:border-royal-500"
-                            placeholder="Ou cole a URL da imagem aqui"
-                          />
+                              }}
+                              className="px-4 py-2 bg-royal-700 text-white rounded-lg hover:bg-royal-800"
+                            >
+                              Adicionar
+                            </button>
+                          </div>
                         </div>
                         {newProductImages.length > 0 && (
                           <div className="flex flex-wrap gap-2 mt-4">
