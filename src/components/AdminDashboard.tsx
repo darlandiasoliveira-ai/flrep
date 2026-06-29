@@ -52,14 +52,17 @@ export default function AdminDashboard() {
   const [editingHighlightId, setEditingHighlightId] = useState<string | null>(null);
   const [newTitle, setNewTitle] = useState('');
   const [newImage, setNewImage] = useState('');
+  const [newProductImages, setNewProductImages] = useState<string[]>([]);
   const [newLinkUrl, setNewLinkUrl] = useState('');
   const [newCatalogTitle, setNewCatalogTitle] = useState('');
   const [newCatalogFile, setNewCatalogFile] = useState('');
   const [newCatalogCover, setNewCatalogCover] = useState('');
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isUploadingMultiImages, setIsUploadingMultiImages] = useState(false);
   const [isUploadingCatalog, setIsUploadingCatalog] = useState(false);
   const [isUploadingCatalogCover, setIsUploadingCatalogCover] = useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const multiFileInputRef = React.useRef<HTMLInputElement>(null);
   const catalogInputRef = React.useRef<HTMLInputElement>(null);
   const catalogCoverInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -79,6 +82,28 @@ export default function AdminDashboard() {
     } finally {
       setIsUploadingImage(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleMultiImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsUploadingMultiImages(true);
+    try {
+      const uploadPromises = Array.from(files).map(async (file) => {
+        const storageRef = ref(storage, `uploads/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`);
+        const snapshot = await uploadBytesResumable(storageRef, file);
+        return getDownloadURL(snapshot.ref);
+      });
+      const downloadURLs = await Promise.all(uploadPromises);
+      setNewProductImages(prev => [...prev, ...downloadURLs]);
+    } catch (error) {
+      console.error("Erro ao fazer upload das imagens", error);
+      alert("Erro ao fazer upload. Verifique as permissões do Firebase Storage.");
+    } finally {
+      setIsUploadingMultiImages(false);
+      if (multiFileInputRef.current) multiFileInputRef.current.value = '';
     }
   };
 
@@ -310,18 +335,26 @@ export default function AdminDashboard() {
 
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newTitle || !newImage) return;
+    if (!newTitle || (newProductImages.length === 0 && !newImage)) {
+      alert("Título e pelo menos uma imagem são obrigatórios.");
+      return;
+    }
 
     try {
       const currentBrandSlug = activeTab.replace('brand_', '');
+      
+      const productImages = newProductImages.length > 0 ? newProductImages : [newImage];
+      
       await addDoc(collection(db, 'products'), {
         title: newTitle,
-        imageUrl: newImage,
+        imageUrl: productImages[0], // fallback for older UI
+        images: productImages,
         brandSlug: currentBrandSlug,
         createdAt: serverTimestamp()
       });
       setNewTitle('');
       setNewImage('');
+      setNewProductImages([]);
       setIsAdding(false);
     } catch (error) {
       handleFirestoreError(error, OperationType.CREATE, 'products');
@@ -928,28 +961,48 @@ export default function AdminDashboard() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Imagem do Produto (Upload ou URL)</label>
-                        <p className="text-xs text-slate-500 mb-2">Tamanho ideal recomendado: <strong>800 x 800 pixels</strong> (Formato Quadrado 1:1).</p>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Imagens do Produto</label>
+                        <p className="text-xs text-slate-500 mb-2">Você pode selecionar várias imagens. Tamanho ideal recomendado: <strong>800 x 800 pixels</strong> (Formato Quadrado 1:1).</p>
                         <div className="flex gap-2">
                           <button
                             type="button"
-                            onClick={() => fileInputRef.current?.click()}
-                            disabled={isUploadingImage}
+                            onClick={() => multiFileInputRef.current?.click()}
+                            disabled={isUploadingMultiImages}
                             className="px-4 py-2 bg-slate-100 text-slate-700 border border-slate-300 rounded-lg hover:bg-slate-200 flex-shrink-0 disabled:opacity-50"
                           >
-                            {isUploadingImage ? 'Enviando...' : 'Fazer Upload'}
+                            {isUploadingMultiImages ? 'Enviando...' : 'Fazer Upload (Múltiplas)'}
                           </button>
                           <input 
                             type="url" 
-                            required
                             value={newImage}
-                            onChange={(e) => setNewImage(e.target.value)}
+                            onChange={(e) => {
+                                setNewImage(e.target.value);
+                                if (e.target.value) {
+                                  setNewProductImages(prev => [...prev, e.target.value]);
+                                  setNewImage(''); // clear input after adding
+                                }
+                            }}
                             className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-royal-500 focus:border-royal-500"
                             placeholder="Ou cole a URL da imagem aqui"
                           />
                         </div>
-                        {newImage && <img src={newImage} alt="Preview" className="mt-2 h-32 object-cover rounded-lg border border-slate-200" />}
-                        <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleImageUpload} />
+                        {newProductImages.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mt-4">
+                            {newProductImages.map((imgUrl, index) => (
+                              <div key={index} className="relative group">
+                                <img src={imgUrl} alt={`Preview ${index}`} className="h-24 w-24 object-cover rounded-lg border border-slate-200" />
+                                <button
+                                  type="button"
+                                  onClick={() => setNewProductImages(prev => prev.filter((_, i) => i !== index))}
+                                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        <input type="file" multiple accept="image/*" className="hidden" ref={multiFileInputRef} onChange={handleMultiImageUpload} />
                       </div>
                       <div className="flex gap-3 pt-2">
                         <button 

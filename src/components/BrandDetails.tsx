@@ -146,12 +146,32 @@ export default function BrandDetails() {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {products.map((product: any) => (
                 <div key={product.id} className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm group hover:shadow-md transition-shadow">
-                  <div className="aspect-square bg-slate-100 overflow-hidden relative">
-                    <img 
-                      src={product.imageUrl} 
-                      alt={product.title || 'Produto'} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
+                  <div className="aspect-square bg-slate-100 overflow-hidden relative group/carousel">
+                    {product.images && product.images.length > 1 ? (
+                      <div className="flex w-full h-full overflow-x-auto snap-x snap-mandatory hide-scrollbar">
+                        {product.images.map((img: string, idx: number) => (
+                          <img 
+                            key={idx}
+                            src={img} 
+                            alt={`${product.title || 'Produto'} - Imagem ${idx + 1}`} 
+                            className="w-full h-full object-cover shrink-0 snap-center"
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <img 
+                        src={product.imageUrl} 
+                        alt={product.title || 'Produto'} 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    )}
+                    {product.images && product.images.length > 1 && (
+                      <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1.5 pointer-events-none">
+                        {product.images.map((_: any, idx: number) => (
+                          <div key={idx} className="w-1.5 h-1.5 rounded-full bg-white/70 shadow-sm border border-black/10"></div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div className="p-4 text-center border-t border-slate-100">
                     <h3 className="font-bold text-slate-800">{product.title}</h3>
@@ -171,6 +191,15 @@ export default function BrandDetails() {
         </div>
 
       </div>
+      <style>{`
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </section>
   );
 }
