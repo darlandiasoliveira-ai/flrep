@@ -929,6 +929,7 @@ export default function AdminDashboard() {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">Imagem do Produto (Upload ou URL)</label>
+                        <p className="text-xs text-slate-500 mb-2">Tamanho ideal recomendado: <strong>800 x 800 pixels</strong> (Formato Quadrado 1:1).</p>
                         <div className="flex gap-2">
                           <button
                             type="button"
