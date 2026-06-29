@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { brands } from '../data';
 import * as motion from 'motion/react-client';
-import { ArrowLeft, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, Image as ImageIcon, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { db } from '../lib/firebase';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 
@@ -12,6 +12,8 @@ export default function BrandDetails() {
   const [products, setProducts] = useState<any[]>([]);
   const [catalogs, setCatalogs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     if (!slug) return;
@@ -145,7 +147,14 @@ export default function BrandDetails() {
           ) : products.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {products.map((product: any) => (
-                <div key={product.id} className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm group hover:shadow-md transition-shadow">
+                <div 
+                  key={product.id} 
+                  className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm group hover:shadow-md transition-shadow cursor-pointer"
+                  onClick={() => {
+                    setSelectedProduct(product);
+                    setCurrentImageIndex(0);
+                  }}
+                >
                   <div className="aspect-square bg-slate-100 overflow-hidden relative group/carousel">
                     {product.images && product.images.length > 1 ? (
                       <div className="flex w-full h-full overflow-x-auto snap-x snap-mandatory hide-scrollbar">
@@ -191,6 +200,62 @@ export default function BrandDetails() {
         </div>
 
       </div>
+      
+      {selectedProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 md:p-8" onClick={() => setSelectedProduct(null)}>
+          <div className="relative w-full max-w-5xl max-h-full flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+            <button 
+              className="absolute top-4 right-4 z-50 p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors backdrop-blur-sm"
+              onClick={() => setSelectedProduct(null)}
+            >
+              <X className="w-6 h-6" />
+            </button>
+            
+            {(selectedProduct.images && selectedProduct.images.length > 1) ? (
+              <>
+                <button 
+                  className="absolute left-4 md:left-8 z-50 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors backdrop-blur-sm"
+                  onClick={() => setCurrentImageIndex(prev => (prev > 0 ? prev - 1 : selectedProduct.images.length - 1))}
+                >
+                  <ChevronLeft className="w-8 h-8" />
+                </button>
+                <img 
+                  src={selectedProduct.images[currentImageIndex]} 
+                  alt={selectedProduct.title}
+                  className="max-w-full max-h-[85vh] object-contain rounded-lg"
+                />
+                <button 
+                  className="absolute right-4 md:right-8 z-50 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors backdrop-blur-sm"
+                  onClick={() => setCurrentImageIndex(prev => (prev < selectedProduct.images.length - 1 ? prev + 1 : 0))}
+                >
+                  <ChevronRight className="w-8 h-8" />
+                </button>
+
+                <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
+                  {selectedProduct.images.map((_: any, idx: number) => (
+                    <button
+                      key={idx}
+                      onClick={() => setCurrentImageIndex(idx)}
+                      className={`w-2.5 h-2.5 rounded-full transition-all ${currentImageIndex === idx ? 'bg-white scale-125' : 'bg-white/50 hover:bg-white/80'}`}
+                    />
+                  ))}
+                </div>
+              </>
+            ) : (
+              <img 
+                src={selectedProduct.imageUrl || (selectedProduct.images && selectedProduct.images[0])} 
+                alt={selectedProduct.title}
+                className="max-w-full max-h-[85vh] object-contain rounded-lg"
+              />
+            )}
+            
+            <div className="absolute top-4 left-4 z-50 text-center pointer-events-none">
+              <h3 className="inline-block px-4 py-2 bg-black/50 backdrop-blur-md text-white font-medium rounded-lg">{selectedProduct.title}</h3>
+            </div>
+          </div>
+        </div>
+      )}
+
       <style>{`
         .hide-scrollbar::-webkit-scrollbar {
           display: none;
