@@ -949,6 +949,7 @@ export default function AdminDashboard() {
                           />
                         </div>
                         {newImage && <img src={newImage} alt="Preview" className="mt-2 h-32 object-cover rounded-lg border border-slate-200" />}
+                        <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleImageUpload} />
                       </div>
                       <div className="flex gap-3 pt-2">
                         <button 
